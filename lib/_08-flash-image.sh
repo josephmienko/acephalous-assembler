@@ -2,39 +2,45 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+CONFIG_FILE="$SCRIPT_DIR/config.env"
+
+if [[ ! -f "$CONFIG_FILE" ]]; then
+  echo "config.env not found." >&2
+  exit 1
+fi
+
+set -a
 # shellcheck source=/dev/null
-source "$SCRIPT_DIR/config.env"
+source "$CONFIG_FILE"
+set +a
 
-if [[ -z "${OUT:-}" ]]; then
-  echo "OUT is not set in config.env" >&2
-  exit 1
-fi
-
-if [[ -z "${FLASH_DRIVE:-}" ]]; then
-  echo "FLASH_DRIVE is not set in config.env" >&2
-  exit 1
-fi
+: "${OUT:?OUT is not set in config.env}"
+: "${FLASH_DRIVE:?FLASH_DRIVE is not set in config.env}"
 
 if [[ ! -f "$OUT" ]]; then
-  echo "Built ISO not found: $OUT" >&2
+  echo "ISO not found: $OUT" >&2
   exit 1
 fi
 
-if [[ "$FLASH_DRIVE" != /dev/* ]]; then
-  echo "FLASH_DRIVE must look like /dev/diskN" >&2
+if [[ ! "$FLASH_DRIVE" =~ ^/dev/disk[0-9]+$ ]]; then
+  echo "FLASH_DRIVE must be a whole-disk device like /dev/disk2" >&2
   exit 1
 fi
 
-echo "About to flash:"
+RAW_DRIVE="${FLASH_DRIVE/\/dev\/disk/\/dev\/rdisk}"
+
+echo "About to erase and flash:"
 echo "  image: $OUT"
 echo "  drive: $FLASH_DRIVE"
+echo "  raw:   $RAW_DRIVE"
+read -r -p "Continue? [y/N] " REPLY
+[[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
 
-echo "Running: balena local flash \"$OUT\" --drive \"$FLASH_DRIVE\" --yes"
-balena local flash "$OUT" --drive "$FLASH_DRIVE" --yes
+diskutil unmountDisk "$FLASH_DRIVE"
 
-echo "Flash completed successfully. Ejecting $FLASH_DRIVE for safe removal..."
-if diskutil eject "$FLASH_DRIVE"; then
-  echo "Drive ejected successfully."
-else
-  echo "Flash succeeded, but automatic eject failed. You may need to eject it manually in Finder or with diskutil." >&2
-fi
+sudo dd if="$OUT" of="$RAW_DRIVE" bs=4m
+sync
+
+diskutil eject "$FLASH_DRIVE"
+
+echo "Flash complete and drive ejected."
