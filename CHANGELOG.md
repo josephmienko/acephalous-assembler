@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.1.2 - 2026-04-16
+#### Bug Fixes
+- export config.env variables and correct lib paths - (75e0637) - Joseph A. Mienko
+#### Style
+- improve password hash script user prompts - (bbb42b3) - Joseph A. Mienko
+
+- - -
+
 ## 0.1.1 - 2026-04-16
 #### Documentation
 - add Cocogitto versioning documentation - (ead1304) - Joseph A. Mienko
