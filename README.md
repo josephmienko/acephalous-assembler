@@ -67,8 +67,8 @@ The implementation scripts are organized in the `lib/` directory:
 - `lib/_06-rebuild-md5.py` — rebuild `md5sum.txt`
 - `lib/_07-build-iso.sh` — repack the modified ISO
 - `lib/_08-flash-image.sh` — flash the rebuilt ISO to the configured USB drive with balena CLI and eject it
-- `lib/start-status-server.sh` — wrapper to launch the status server
-- `lib/install-status-server.py` — receive install-status and first-boot callbacks
+- `lib/_991-start-status-server.sh` — wrapper to launch the status server (optional)
+- `lib/_992-install-status-server.py` — receive install-status and first-boot callbacks (optional)
 
 ## Configuration
 

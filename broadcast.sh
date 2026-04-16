@@ -3,4 +3,4 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-exec "$SCRIPT_DIR/lib/start-status-server.sh"
+exec "$SCRIPT_DIR/lib/_991-start-status-server.sh"
