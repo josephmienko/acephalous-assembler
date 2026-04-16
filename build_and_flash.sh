@@ -9,8 +9,11 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
   exit 1
 fi
 
+# Export all variables from config.env so child scripts can see them.
+set -a
 # shellcheck source=/dev/null
 source "$CONFIG_FILE"
+set +a
 
 if [[ -z "${PASSWORD_HASH:-}" || "${PASSWORD_HASH}" == *REPLACE_WITH_REAL_HASH* ]]; then
   echo "PASSWORD_HASH is missing or still set to the placeholder in config.env." >&2
@@ -19,11 +22,8 @@ if [[ -z "${PASSWORD_HASH:-}" || "${PASSWORD_HASH}" == *REPLACE_WITH_REAL_HASH* 
 fi
 
 "$SCRIPT_DIR/lib/_03-prepare-workdir.sh"
-python3 "$SCRIPT_DIR/lib/_04-render-autoinstall.py" \
-  --config "$CONFIG_FILE" \
-  --template "$SCRIPT_DIR/templates/autoinstall.template.yaml" \
-  --output "$ROOT/autoinstall.yaml"
-python3 "$SCRIPT_DIR/lib/_05-patch-grub.py" --root "$ROOT"
-python3 "$SCRIPT_DIR/lib/_06-rebuild-md5.py" --root "$ROOT"
+python3 "$SCRIPT_DIR/lib/_04-render-autoinstall.py"
+python3 "$SCRIPT_DIR/lib/_05-patch-grub.py"
+python3 "$SCRIPT_DIR/lib/_06-rebuild-md5.py"
 "$SCRIPT_DIR/lib/_07-build-iso.sh"
 "$SCRIPT_DIR/lib/_08-flash-image.sh"
