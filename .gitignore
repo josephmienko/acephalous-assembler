@@ -1,2 +1,10 @@
 .env
 config.env
+
+# Build artifacts
+/tmp/ubuntu-autoinstall/
+*.iso
+*.md5
+
+# Status server logs
+status.ndjson
