@@ -1,0 +1,48 @@
+#cloud-config
+autoinstall:
+  version: 1
+  refresh-installer:
+    update: false
+
+  locale: en_US.UTF-8
+  keyboard:
+    layout: us
+
+  source:
+    search_drivers: false
+
+  identity:
+    hostname: ${HOSTNAME}
+    username: ${USERNAME}
+    password: '${PASSWORD_HASH}'
+
+  ssh:
+    install-server: true
+    allow-pw: true
+    # authorized-keys:
+    #   - ssh-ed25519 AAAA...your-public-key...
+
+  storage:
+    layout:
+      name: direct
+      match:
+        ssd: true
+        size: smallest
+
+  reporting:
+    builtin:
+      type: print
+    hook:
+      type: webhook
+      endpoint: http://${STATUS_IP}:${STATUS_PORT}/install-status
+      level: INFO
+
+  updates: security
+  shutdown: reboot
+
+  user-data:
+    ## template: jinja
+    phone_home:
+      url: http://${STATUS_IP}:${STATUS_PORT}/first-boot/{{ v1.instance_id }}/
+      post: [instance_id, hostname, fqdn]
+      tries: 5
