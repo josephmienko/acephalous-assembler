@@ -83,16 +83,19 @@ This project uses [Cocogitto](https://github.com/cocogitto/cocogitto) for semant
 ### Local version management
 
 View the current version:
+
 ```bash
 git describe --tags
 ```
 
 Bump version (automatically updates `CHANGELOG.md` and creates a version commit):
+
 ```bash
 cog bump --auto
 ```
 
 View the changelog:
+
 ```bash
 cat CHANGELOG.md
 ```

@@ -16,6 +16,6 @@ xorriso \
 
 echo
 echo "Built: $OUT"
-echo "Flash that ISO to USB with balenaEtcher."
+echo "Flash that ISO to USB."
 echo "Installer status target: http://${STATUS_IP}:${STATUS_PORT}/install-status"
 echo "First boot callback target: http://${STATUS_IP}:${STATUS_PORT}/first-boot/<instance-id>/"
