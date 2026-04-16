@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.1.4 - 2026-04-16
+#### Refactoring
+- replace balena-cli with native dd for ISO flashing - (bfe8629) - Joseph A. Mienko
+
+- - -
+
 ## 0.1.3 - 2026-04-16
 #### Bug Fixes
 - restore explicit command-line arguments for Python scripts - (8649b9b) - Joseph A. Mienko
