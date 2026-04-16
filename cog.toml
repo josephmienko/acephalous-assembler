@@ -1,0 +1,11 @@
+# Cocogitto configuration for semantic versioning
+
+# Generate version from conventional commits
+from_latest_tag = false
+
+# Automatically create a commit when bumping version
+disable_bump_commit = false
+
+# Changelog generation
+[changelog]
+path = "CHANGELOG.md"
