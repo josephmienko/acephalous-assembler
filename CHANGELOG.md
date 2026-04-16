@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.1.3 - 2026-04-16
+#### Bug Fixes
+- restore explicit command-line arguments for Python scripts - (8649b9b) - Joseph A. Mienko
+
+- - -
+
 ## 0.1.2 - 2026-04-16
 #### Bug Fixes
 - export config.env variables and correct lib paths - (75e0637) - Joseph A. Mienko
