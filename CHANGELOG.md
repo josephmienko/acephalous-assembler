@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.1.1 - 2026-04-16
+#### Documentation
+- add Cocogitto versioning documentation - (ead1304) - Joseph A. Mienko
+#### Refactoring
+- use high numeric prefix for optional server utilities - (3cec422) - Joseph A. Mienko
+
+- - -
+
 ## 0.1.0 - 2026-04-16
 #### Features
 - initial Ubuntu headless autoinstall project structure - (6b32bad) - Joseph A. Mienko
