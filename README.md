@@ -76,6 +76,31 @@ The implementation scripts are organized in the `lib/` directory:
 - `config.env.example` — example configuration template
 - `templates/autoinstall.template.yaml` — your installer template (substitutes `${KEY}` with values from `config.env`)
 
+## Versioning
+
+This project uses [Cocogitto](https://github.com/cocogitto/cocogitto) for semantic versioning and changelog generation based on [conventional commits](https://www.conventionalcommits.org/).
+
+### Local version management
+
+View the current version:
+```bash
+git describe --tags
+```
+
+Bump version (automatically updates `CHANGELOG.md` and creates a version commit):
+```bash
+cog bump --auto
+```
+
+View the changelog:
+```bash
+cat CHANGELOG.md
+```
+
+### CI/CD integration
+
+The `cog bump` command can be easily integrated into GitHub Actions or other CI/CD platforms later. The workflow is designed to generate version tags and changelogs locally while remaining flexible for automation.
+
 ---
 
 ## Notes
