@@ -2,6 +2,14 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.2.0 - 2026-04-17
+#### Features
+- add optional NoCloud live-installer credentials mode - (6c2481a) - Joseph A. Mienko
+#### Miscellaneous Chores
+- remove balena references and fix markdown linting - (00051b5) - Joseph A. Mienko
+
+- - -
+
 ## 0.1.4 - 2026-04-16
 #### Refactoring
 - replace balena-cli with native dd for ISO flashing - (bfe8629) - Joseph A. Mienko
