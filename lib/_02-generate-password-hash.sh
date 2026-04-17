@@ -2,8 +2,11 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/config.env"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+CONFIG_FILE="$ROOT_DIR/config.env"
 OPENSSL_BIN="$(brew --prefix openssl@3)/bin/openssl"
+
+
 
 touch "$CONFIG_FILE"
 

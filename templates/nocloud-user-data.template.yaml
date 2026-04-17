@@ -1,0 +1,8 @@
+#cloud-config
+hostname: ${LIVE_INSTALLER_HOSTNAME}
+ssh_pwauth: true
+
+chpasswd:
+  expire: false
+  list:
+    - ${LIVE_INSTALLER_USER}:${PASSWORD_HASH}

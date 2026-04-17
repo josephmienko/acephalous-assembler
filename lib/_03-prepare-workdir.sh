@@ -2,8 +2,9 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 # shellcheck source=/dev/null
-source "$SCRIPT_DIR/config.env"
+source "$ROOT_DIR/config.env"
 
 rm -rf "$WORK"
 mkdir -p "$ROOT"

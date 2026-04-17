@@ -178,7 +178,7 @@ def make_handler(store: EventStore):
                 payload_json,
             )
 
-        def do_post(self) -> None:
+        def do_POST(self) -> None:
             """Accept and acknowledge an incoming status callback."""
             body = self._read_body()
             payload = self._parse_payload(body)
@@ -190,7 +190,7 @@ def make_handler(store: EventStore):
             self.end_headers()
             self.wfile.write(b'{"ok": true}\n')
 
-        def do_get(self) -> None:
+        def do_GET(self) -> None:
             """Serve either the health endpoint or the HTML status page."""
             parsed = urlparse(self.path)
             if parsed.path == "/healthz":
@@ -314,8 +314,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     parser.add_argument(
         "--port",
         type=int,
-        default=8080,
-        help="Bind port, default 8080",
+        default=8081,
+        help="Bind port, default 8081",
     )
     parser.add_argument(
         "--logfile",

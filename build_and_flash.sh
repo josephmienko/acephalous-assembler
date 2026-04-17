@@ -14,6 +14,8 @@ set -a
 source "$CONFIG_FILE"
 set +a
 
+INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS="${INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS:-false}"
+
 if [[ -z "${PASSWORD_HASH:-}" || "${PASSWORD_HASH}" == *REPLACE_WITH_REAL_HASH* ]]; then
   echo "PASSWORD_HASH is missing or still set to the placeholder in config.env." >&2
   echo "Run ./setup.sh first, or update config.env manually." >&2
@@ -22,12 +24,30 @@ fi
 
 "$SCRIPT_DIR/lib/_03-prepare-workdir.sh"
 
-python3 "$SCRIPT_DIR/lib/_04-render-autoinstall.py" \
+python3 "$SCRIPT_DIR/lib/_04-render-template.py" \
   --config "$CONFIG_FILE" \
   --template "$SCRIPT_DIR/templates/autoinstall.template.yaml" \
   --output "$ROOT/autoinstall.yaml"
 
-python3 "$SCRIPT_DIR/lib/_05-patch-grub.py" --root "$ROOT"
+if [[ "$INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS" == "true" ]]; then
+  mkdir -p "$ROOT/nocloud"
+
+  python3 "$SCRIPT_DIR/lib/_04-render-template.py" \
+    --config "$CONFIG_FILE" \
+    --template "$SCRIPT_DIR/templates/nocloud-user-data.template.yaml" \
+    --output "$ROOT/nocloud/user-data"
+
+  python3 "$SCRIPT_DIR/lib/_04-render-template.py" \
+    --config "$CONFIG_FILE" \
+    --template "$SCRIPT_DIR/templates/nocloud-meta-data.template" \
+    --output "$ROOT/nocloud/meta-data"
+else
+  rm -rf "$ROOT/nocloud"
+fi
+
+python3 "$SCRIPT_DIR/lib/_05-patch-grub.py" \
+  --root "$ROOT" \
+  --include-nocloud "$INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS"
 python3 "$SCRIPT_DIR/lib/_06-rebuild-md5.py" --root "$ROOT"
 
 "$SCRIPT_DIR/lib/_07-build-iso.sh"

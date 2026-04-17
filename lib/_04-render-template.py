@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Render NoCloud seed files for headless Ubuntu Server installer SSH access.
+"""Render a template file using shell-style key/value config values.
 
-This script reads a shell-style config file, substitutes matching ``${KEY}``
-placeholders in a user-data template, writes the rendered user-data file, and
-writes a sibling meta-data file for the NoCloud datasource.
+This script reads a simple ``KEY=VALUE`` config file, substitutes matching
+``${KEY}`` placeholders in a template file, and writes the rendered result to
+an output path.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def render_template(template: str, values: dict[str, str]) -> str:
     """Substitute ``${NAME}`` placeholders in a template string.
 
     Args:
-        template: Template text.
+        template: Template text containing placeholders.
         values: Placeholder values.
 
     Returns:
@@ -54,7 +54,14 @@ def render_template(template: str, values: dict[str, str]) -> str:
     """
 
     def repl(match: re.Match[str]) -> str:
-        """Return the replacement value for a matched placeholder."""
+        """Return the replacement value for a matched placeholder.
+
+        Args:
+            match: Regex match object containing a placeholder name.
+
+        Returns:
+            Replacement text for the placeholder.
+        """
         key = match.group(1)
         if key not in values:
             raise KeyError(f"Missing template variable: {key}")
@@ -64,48 +71,29 @@ def render_template(template: str, values: dict[str, str]) -> str:
 
 
 def main() -> int:
-    """Render NoCloud user-data and meta-data files.
+    """Parse arguments and render a template.
 
     Returns:
         Zero on success.
     """
     parser = argparse.ArgumentParser(
-        description="Render NoCloud seed files from config.env"
+        description="Render a template file from config.env"
     )
     parser.add_argument("--config", required=True, help="Path to config.env")
-    parser.add_argument(
-        "--template",
-        required=True,
-        help="Path to NoCloud user-data template",
-    )
-    parser.add_argument(
-        "--output",
-        required=True,
-        help="Output path for rendered user-data file",
-    )
+    parser.add_argument("--template", required=True, help="Path to template file")
+    parser.add_argument("--output", required=True, help="Path to output file")
     args = parser.parse_args()
 
     config = load_config(Path(args.config).expanduser())
     template = Path(args.template).expanduser().read_text(encoding="utf-8")
-    rendered_user_data = render_template(template, config)
+    rendered = render_template(template, config)
 
     output_path = Path(args.output).expanduser()
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(rendered_user_data, encoding="utf-8")
-
-    meta_data = (
-        "instance-id: nocloud\n"
-        f"local-hostname: \
-            {config.get('LIVE_INSTALLER_HOSTNAME', 'dell-live')}\n"
-    )
-    meta_path = output_path.parent / "meta-data"
-    meta_path.write_text(meta_data, encoding="utf-8")
-
+    output_path.write_text(rendered, encoding="utf-8")
     print(f"Wrote {output_path}")
-    print(f"Wrote {meta_path}")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-    

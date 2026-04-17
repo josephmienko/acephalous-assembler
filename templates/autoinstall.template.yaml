@@ -25,9 +25,7 @@ autoinstall:
   storage:
     layout:
       name: direct
-      match:
-        ssd: true
-        size: smallest
+      match: {}
 
   reporting:
     builtin:
