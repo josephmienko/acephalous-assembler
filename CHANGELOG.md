@@ -2,6 +2,27 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.4.0 - 2026-04-21
+#### Features
+- add Debian preseed GRUB patcher and integrate into build workflow - (1e2bb0c) - Joseph A. Mienko
+#### Bug Fixes
+- remove dead code from root build_and_flash.sh dispatcher - (50931ca) - Joseph A. Mienko
+#### Documentation
+- update badge URLs with GitHub username - (13bf492) - Joseph A. Mienko
+- add README for test suite with coverage table and examples - (e301e9f) - Joseph A. Mienko
+#### Tests
+- add automated test suite with 12 passing tests - (aaf7503) - Joseph A. Mienko
+#### Continuous Integration
+- fix action versions to use available v4.1.7 and correct YAML syntax - (5294738) - Joseph A. Mienko
+- update to Node.js 24 compatible action versions (checkout v4.2.3, setup-python v5, upload-artifact v4.5.0) - (f196517) - Joseph A. Mienko
+- upgrade to GitHub Actions v4 artifacts and checkout v4.1, fix validation logic - (6180b93) - Joseph A. Mienko
+- add GitHub Actions workflows for validation and coverage reporting - (e2ded8e) - Joseph A. Mienko
+#### Refactoring
+- rename project to acephalous-assembler - (9cfc310) - Joseph A. Mienko
+- extract shared functions into lib/_00-common-functions.sh - (ef3e594) - Joseph A. Mienko
+
+- - -
+
 ## 0.3.0 - 2026-04-21
 #### Features
 - add multi-distro support with Debian preseed variant - (3b225fe) - Joseph A. Mienko
