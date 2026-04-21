@@ -25,9 +25,10 @@ python3 "$ROOT_DIR/lib/_04-render-template.py" \
   --template "$SCRIPT_DIR/templates/preseed.template" \
   --output "$ROOT/preseed.cfg"
 
-# For now, we don't patch GRUB - Debian uses kernel boot parameters
-# The preseed URL would need to be passed as a kernel argument
-# TODO: implement lib/_05-patch-grub-debian.py for preseed/url= argument
+# Patch GRUB for preseed-based automated installation
+python3 "$ROOT_DIR/lib/_05-patch-grub-debian.py" \
+  --root "$ROOT" \
+  --preseed-url "file:///cdrom/preseed.cfg"
 
 python3 "$ROOT_DIR/lib/_06-rebuild-md5.py" --root "$ROOT"
 
