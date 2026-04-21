@@ -2,6 +2,12 @@
 All notable changes to this project will be documented in this file. See [conventional commits](https://www.conventionalcommits.org/) for commit guidelines.
 
 - - -
+## 0.3.0 - 2026-04-21
+#### Features
+- add multi-distro support with Debian preseed variant - (3b225fe) - Joseph A. Mienko
+
+- - -
+
 ## 0.2.0 - 2026-04-17
 #### Features
 - add optional NoCloud live-installer credentials mode - (6c2481a) - Joseph A. Mienko
