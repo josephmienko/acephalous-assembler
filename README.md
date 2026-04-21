@@ -1,8 +1,8 @@
 # Automated Linux ISO Builder
 
-[![Validation](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml)
-[![Coverage](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml)
-[![Status](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml)
+[![Validation](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/validate.yml/badge.svg)](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/validate.yml)
+[![Coverage](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/coverage.yml/badge.svg)](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/coverage.yml)
+[![Status](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/status.yml/badge.svg)](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/status.yml)
 
 This bundle builds custom Linux ISOs with automated installation capabilities:
 
