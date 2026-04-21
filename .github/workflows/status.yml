@@ -11,7 +11,7 @@ jobs:
     name: Python Syntax Check
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.3
+      - uses: actions/checkout@v4.1.7
       
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -41,7 +41,7 @@ jobs:
     name: YAML & Config Validation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4.2.3
+      - uses: actions/checkout@v4.1.7
       
       - name: Validate YAML templates
         run: |
