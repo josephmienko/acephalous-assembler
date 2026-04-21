@@ -57,9 +57,9 @@ Each workflow generates artifacts available for 7-30 days:
 Add these to your README or other docs:
 
 ```markdown
-[![Validation](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml)
-[![Coverage](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml)
-[![Status](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml)
+[![Validation](https://github.com/yourusername/acephalous-assembler/actions/workflows/validate.yml/badge.svg)](https://github.com/yourusername/acephalous-assembler/actions/workflows/validate.yml)
+[![Coverage](https://github.com/yourusername/acephalous-assembler/actions/workflows/coverage.yml/badge.svg)](https://github.com/yourusername/acephalous-assembler/actions/workflows/coverage.yml)
+[![Status](https://github.com/yourusername/acephalous-assembler/actions/workflows/status.yml/badge.svg)](https://github.com/yourusername/acephalous-assembler/actions/workflows/status.yml)
 ```
 
 ## Local Testing

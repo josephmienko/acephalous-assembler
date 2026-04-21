@@ -1,8 +1,8 @@
 # Automated Linux ISO Builder
 
-[![Validation](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/validate.yml/badge.svg)](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/validate.yml)
-[![Coverage](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/coverage.yml/badge.svg)](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/coverage.yml)
-[![Status](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/status.yml/badge.svg)](https://github.com/josephmienko/ubuntu_install_status_bundle/actions/workflows/status.yml)
+[![Validation](https://github.com/josephmienko/acephalous-assembler/actions/workflows/validate.yml/badge.svg)](https://github.com/josephmienko/acephalous-assembler/actions/workflows/validate.yml)
+[![Coverage](https://github.com/josephmienko/acephalous-assembler/actions/workflows/coverage.yml/badge.svg)](https://github.com/josephmienko/acephalous-assembler/actions/workflows/coverage.yml)
+[![Status](https://github.com/josephmienko/acephalous-assembler/actions/workflows/status.yml/badge.svg)](https://github.com/josephmienko/acephalous-assembler/actions/workflows/status.yml)
 
 This bundle builds custom Linux ISOs with automated installation capabilities:
 
@@ -40,8 +40,8 @@ This section describes the Ubuntu variant.
 
 ```bash
 cd ~/Downloads
-unzip ubuntu_install_status_bundle.zip -d ubuntu_install_status_bundle
-cd ubuntu_install_status_bundle
+unzip acephalous-assembler.zip -d acephalous-assembler
+cd acephalous-assembler
 ./setup.sh
 ```
 
