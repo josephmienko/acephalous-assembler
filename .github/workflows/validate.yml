@@ -1,0 +1,92 @@
+name: Validation
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  shellcheck:
+    name: ShellCheck Linting
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+      
+      - name: Run ShellCheck on shell scripts
+        run: |
+          find . -type f -name "*.sh" \
+            -not -path "./.git/*" \
+            -not -path "./.*" \
+            -exec shellcheck {} +
+        continue-on-error: false
+
+  structure:
+    name: Project Structure Validation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Validate directory structure
+        run: |
+          echo "Checking required directories..."
+          test -d lib && echo "✓ lib/ exists" || (echo "✗ lib/ missing" && exit 1)
+          test -d ubuntu && echo "✓ ubuntu/ exists" || (echo "✗ ubuntu/ missing" && exit 1)
+          test -d debian && echo "✓ debian/ exists" || (echo "✗ debian/ missing" && exit 1)
+          test -d tests && echo "✓ tests/ exists" || (echo "✗ tests/ missing" && exit 1)
+      
+      - name: Validate required files
+        run: |
+          echo "Checking required files in lib/..."
+          for file in lib/_0{1..8}-*.sh lib/_99{1..2}-*.sh; do
+            test -f "$file" && echo "✓ $file" || (echo "✗ $file missing" && exit 1)
+          done
+          
+          echo "Checking required files in ubuntu/..."
+          test -f ubuntu/setup.sh && echo "✓ ubuntu/setup.sh" || (echo "✗ ubuntu/setup.sh missing" && exit 1)
+          test -f ubuntu/build_and_flash.sh && echo "✓ ubuntu/build_and_flash.sh" || (echo "✗ ubuntu/build_and_flash.sh missing" && exit 1)
+          test -d ubuntu/templates && echo "✓ ubuntu/templates/" || (echo "✗ ubuntu/templates/ missing" && exit 1)
+          
+          echo "Checking required files in debian/..."
+          test -f debian/setup.sh && echo "✓ debian/setup.sh" || (echo "✗ debian/setup.sh missing" && exit 1)
+          test -f debian/build_and_flash.sh && echo "✓ debian/build_and_flash.sh" || (echo "✗ debian/build_and_flash.sh missing" && exit 1)
+          test -d debian/templates && echo "✓ debian/templates/" || (echo "✗ debian/templates/ missing" && exit 1)
+          
+          echo "Checking root dispatcher scripts..."
+          test -f setup.sh && echo "✓ setup.sh" || (echo "✗ setup.sh missing" && exit 1)
+          test -f build_and_flash.sh && echo "✓ build_and_flash.sh" || (echo "✗ build_and_flash.sh missing" && exit 1)
+      
+      - name: Validate file permissions
+        run: |
+          echo "Checking executable permissions..."
+          test -x lib/_00-common-functions.sh && echo "✓ lib/_00-common-functions.sh executable" || (echo "✗ lib/_00-common-functions.sh not executable" && exit 1)
+          test -x tests/run-all-tests.sh && echo "✓ tests/run-all-tests.sh executable" || (echo "✗ tests/run-all-tests.sh not executable" && exit 1)
+      
+      - name: Validate config.env example
+        run: |
+          echo "Checking config files..."
+          test -f config.env.example && echo "✓ config.env.example" || (echo "✗ config.env.example missing" && exit 1)
+          test -f ubuntu/config.env.example && echo "✓ ubuntu/config.env.example" || (echo "✗ ubuntu/config.env.example missing" && exit 1)
+          test -f debian/config.env.example && echo "✓ debian/config.env.example" || (echo "✗ debian/config.env.example missing" && exit 1)
+
+  tests:
+    name: Automated Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Run test suite
+        run: |
+          chmod +x tests/run-all-tests.sh
+          tests/run-all-tests.sh
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-results
+          path: test-results/
+          retention-days: 7

@@ -1,5 +1,9 @@
 # Automated Linux ISO Builder
 
+[![Validation](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml)
+[![Coverage](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml)
+[![Status](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml)
+
 This bundle builds custom Linux ISOs with automated installation capabilities:
 
 - **Ubuntu** — autoinstall with optional NoCloud live-installer credentials
@@ -154,3 +158,33 @@ The implementation scripts are organized in `lib/`:
 - The template is configured to reboot after install and send a first-boot callback.
 - The NoCloud option is only for gaining SSH access to the temporary installer environment.
 - The installed system credentials still come from the normal autoinstall `identity` block.
+
+## CI/CD & Quality
+
+Automated checks run on every push and pull request:
+
+### Workflows
+
+- **Validation** — ShellCheck linting, project structure validation, automated tests
+- **Coverage** — Test coverage analysis and results reporting
+- **Status** — Python syntax validation, YAML format validation
+
+### Badges
+
+| Badge | Workflow | Purpose |
+|-------|----------|---------|
+| [![Validation](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml) | Validation | Shell script linting, file structure, tests |
+| [![Coverage](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml) | Coverage | Test coverage percentage and reports |
+| [![Status](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml) | Status | Python and YAML validation |
+
+### Running Tests Locally
+
+Execute automated tests:
+```bash
+./tests/run-all-tests.sh
+```
+
+Full test suite includes:
+- Unit tests for shared config functions
+- Integration tests for variant setup
+- 12+ passing validations

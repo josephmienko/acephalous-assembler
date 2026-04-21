@@ -1,0 +1,14 @@
+# GitHub Actions workflows
+.github/workflows/ @owner
+
+# Core infrastructure
+lib/ @owner
+setup.sh @owner
+build_and_flash.sh @owner
+
+# Tests
+tests/ @owner
+
+# Documentation
+README.md @owner
+CHANGELOG.md @owner
