@@ -1,0 +1,55 @@
+# Preseed template for Debian automated installation
+# See: https://wiki.debian.org/DebianInstaller/Preseed
+
+# Localization
+d-i debian-installer/language string en
+d-i debian-installer/country string US
+d-i debian-installer/locale string en_US.UTF-8
+
+# Network configuration
+d-i netcfg/choose_interface select auto
+d-i netcfg/get_hostname string ${HOSTNAME}
+d-i netcfg/get_domain string local
+
+# Mirror settings
+d-i mirror/country string US
+d-i mirror/http/hostname string deb.debian.org
+d-i mirror/http/directory string /debian
+d-i mirror/suite string ${DEBIAN_SUITE}
+
+# User setup
+d-i passwd/make-user boolean true
+d-i passwd/user-fullname string ${USERNAME}
+d-i passwd/username string ${USERNAME}
+d-i passwd/user-password-crypted password ${PASSWORD_HASH}
+d-i passwd/root-login boolean false
+
+# Clock and time zone
+d-i clock-setup/utc boolean true
+d-i time/zone string UTC
+
+# Partition settings
+d-i partman/choose_partition select finish
+d-i partman/confirm boolean true
+d-i partman/confirm_nooverflow boolean true
+d-i partman-lvm/device_remove_lvm boolean true
+d-i partman-md/device_remove_md boolean true
+
+# Use guided partitioning
+d-i preseed/early_command string debconf-set-selections /cdrom/preseed/preseed-early.cfg || true
+d-i preseed/late_command string in-target sed -i 's/^#\s*\(deb.*universe\)/\1/g' /etc/apt/sources.list; in-target apt-get update; in-target apt-get -y upgrade
+
+# Package settings
+tasksel tasksel/first multiselect standard system-tools
+
+# SSH server
+openssh-server openssh-server/permit-root-login boolean false
+openssh-server openssh-server/port string 22
+
+# GRUB bootloader installation
+d-i grub-installer/only_debian boolean true
+d-i grub-installer/with_other_os boolean true
+d-i finish-install/reboot_in_background boolean true
+
+# Automatic reboot
+d-i finish-install/keep-consoles boolean false

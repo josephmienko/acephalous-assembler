@@ -1,30 +1,36 @@
-# Ubuntu headless autoinstall bundle
+# Automated Linux ISO Builder
 
-This bundle builds a custom Ubuntu Server ISO that automatically installs on a
-blank target machine, flashes it to a USB drive, and can optionally expose
-known SSH credentials for the temporary live installer environment via a
-separate NoCloud seed.
+This bundle builds custom Linux ISOs with automated installation capabilities:
 
-By default, the bundle builds the same normal autoinstall ISO that ultimately
-worked successfully:
+- **Ubuntu** — autoinstall with optional NoCloud live-installer credentials
+- **Debian** — preseed-based automated installation (experimental)
 
-- `/autoinstall.yaml` is injected into the ISO root
-- GRUB is patched to boot `autoinstall`
-- install progress is reported to the local status listener
-- the installed system reboots and phones home on first boot
+Both variants:
+- Extract and customize official distributor ISO images
+- Inject installer configuration (autoinstall.yaml or preseed.cfg)
+- Patch bootloader for unattended boot-to-install
+- Flash to USB via native macOS `dd` command
+- Support optional status server for installation monitoring
 
-If you opt into the NoCloud mode, the bundle still produces that same working
-normal autoinstall ISO, but it also adds:
+## Select Your Distribution
 
-- `/nocloud/user-data`
-- `/nocloud/meta-data`
-- an extra GRUB kernel argument pointing cloud-init at `/cdrom/nocloud/`
+Choose your preferred workflow:
 
-That extra seed only sets known credentials for the **temporary live installer**
-user so you can SSH into the installer environment when needed. It does **not**
-replace the normal `/autoinstall.yaml` path.
+**Ubuntu (recommended):** Standard autoinstall flow with cloud-init integration
+```bash
+./setup.sh
+./build_and_flash.sh
+```
 
-## Workflow
+**Debian (experimental):**  Preseed-based Debian Installer flow
+```bash
+./setup.sh debian
+./build_and_flash.sh
+```
+
+## Ubuntu Workflow Details
+
+This section describes the Ubuntu variant.
 
 ### 1) Initialize & configure
 
@@ -36,8 +42,6 @@ cd ubuntu_install_status_bundle
 ```
 
 This script will:
-
-- Install required Homebrew dependencies
 - Generate a SHA-512 password hash and update `config.env` if missing
 - Persist whether NoCloud live-installer credentials should be included in the
   next build

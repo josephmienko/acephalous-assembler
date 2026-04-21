@@ -1,0 +1,2 @@
+instance-id: nocloud
+local-hostname: ${LIVE_INSTALLER_HOSTNAME}
