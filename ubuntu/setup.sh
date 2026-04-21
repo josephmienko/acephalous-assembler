@@ -2,8 +2,13 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/config.env"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+CONFIG_FILE="$ROOT_DIR/config.env"
 EXAMPLE_FILE="$SCRIPT_DIR/config.env.example"
+
+# Source shared functions
+# shellcheck source=/dev/null
+source "$ROOT_DIR/lib/_00-common-functions.sh"
 
 INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS="false"
 
@@ -18,35 +23,6 @@ Options:
       When omitted or set to false, builds use the standard working autoinstall
       ISO without the extra NoCloud installer seed.
 EOF
-}
-
-set_config_value() {
-  local key="$1"
-  local value="$2"
-  local tmp
-  tmp="$(mktemp)"
-
-  if [[ -f "$CONFIG_FILE" ]] && grep -q "^${key}=" "$CONFIG_FILE"; then
-    awk -v key="$key" -v value="$value" '
-      BEGIN { replaced = 0 }
-      $0 ~ "^" key "=" {
-        print key "=\"" value "\""
-        replaced = 1
-        next
-      }
-      { print }
-      END {
-        if (!replaced) {
-          print key "=\"" value "\""
-        }
-      }
-    ' "$CONFIG_FILE" > "$tmp"
-  else
-    cat "$CONFIG_FILE" > "$tmp"
-    printf '%s="%s"\n' "$key" "$value" >> "$tmp"
-  fi
-
-  mv "$tmp" "$CONFIG_FILE"
 }
 
 while [[ $# -gt 0 ]]; do
@@ -91,12 +67,14 @@ if [[ ! -f "$CONFIG_FILE" ]]; then
   echo "Created $CONFIG_FILE from config.env.example"
 fi
 
-set_config_value \
+set_config_value "$CONFIG_FILE" \
   "INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS" \
   "$INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS"
 
-"$SCRIPT_DIR/../lib/_01-install-deps.sh"
-"$SCRIPT_DIR/../lib/_02-generate-password-hash.sh"
+set_config_value "$CONFIG_FILE" "BUILD_VARIANT" "ubuntu"
+
+"$ROOT_DIR/lib/_01-install-deps.sh"
+"$ROOT_DIR/lib/_02-generate-password-hash.sh"
 
 echo "Setup complete. Review config.env before building."
 echo "INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS=$INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS"

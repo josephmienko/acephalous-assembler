@@ -5,21 +5,17 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
 CONFIG_FILE="$ROOT_DIR/config.env"
 
-if [[ ! -f "$CONFIG_FILE" ]]; then
-  echo "config.env not found. Run ./setup.sh first." >&2
-  exit 1
-fi
-
-set -a
+# Source shared functions
 # shellcheck source=/dev/null
-source "$CONFIG_FILE"
-set +a
+source "$ROOT_DIR/lib/_00-common-functions.sh"
 
-if [[ -z "${PASSWORD_HASH:-}" || "${PASSWORD_HASH}" == *REPLACE_WITH_REAL_HASH* ]]; then
-  echo "PASSWORD_HASH is missing or still set to the placeholder in config.env." >&2
-  echo "Run ./setup.sh first, or update config.env manually." >&2
+# Validate config and password hash
+if ! validate_config_and_hash "$CONFIG_FILE"; then
   exit 1
 fi
+
+# Load config into environment
+load_config "$CONFIG_FILE"
 
 "$ROOT_DIR/lib/_03-prepare-workdir.sh"
 

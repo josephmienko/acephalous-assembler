@@ -28,26 +28,6 @@ case "$BUILD_VARIANT" in
     exit 1
     ;;
 esac
-#!/usr/bin/env bash
-set -euo pipefail
-
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/config.env"
-
-if [[ ! -f "$CONFIG_FILE" ]]; then
-  echo "config.env not found. Run ./setup.sh first." >&2
-  exit 1
-fi
-
-set -a
-# shellcheck source=/dev/null
-source "$CONFIG_FILE"
-set +a
-
-INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS="${INCLUDE_NOCLOUD_INSTALLER_CREDENTIALS:-false}"
-
-if [[ -z "${PASSWORD_HASH:-}" || "${PASSWORD_HASH}" == *REPLACE_WITH_REAL_HASH* ]]; then
-  echo "PASSWORD_HASH is missing or still set to the placeholder in config.env." >&2
   echo "Run ./setup.sh first, or update config.env manually." >&2
   exit 1
 fi
