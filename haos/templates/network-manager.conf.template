@@ -1,0 +1,10 @@
+# NetworkManager configuration for Home Assistant OS
+# Injected during headless build to enable network access without UI
+
+[main]
+dns=systemd-resolved
+
+[connection]
+# Auto-connect to available networks
+autoconnect=true
+autoconnect-priority=100

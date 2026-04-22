@@ -1,0 +1,65 @@
+flowchart TD
+    A["config.env"] --> B{Variant Choice}
+    B -->|ubuntu| C1["ubuntu/setup.sh"]
+    B -->|debian| C2["debian/setup.sh"]
+    B -->|haos| C3["haos/setup.sh"]
+    
+    C1 --> D1["Shared Lib Execution"]
+    C2 --> D1
+    C3 --> D1
+    
+    D1 --> D2["_01 Install Dependencies"]
+    D2 --> D3["_02 Generate Password Hash"]
+    D3 -.calls.-> PY["Python CLI<br/>assembler/cli.py hash"]
+    PY --> PM["PasswordManager<br/>Argon2/SHA-512"]
+    PM --> D3b["PASSWORD_HASH<br/>saved to config.env"]
+    
+    D3b --> D4["_03 Prepare Workdir"]
+    D3b --> E["ISO/IMG Download or Use Existing"]
+    E --> D4
+    
+    D4 --> D5["_04 Render Templates"]
+    D5 -.uses.-> CR["ConfigManager<br/>python-dotenv"]
+    D5 -.uses.-> TR["TemplateRenderer<br/>regex substitution"]
+    CR --> D5b["Load config.env"]
+    TR --> D5b
+    
+    D5b --> D6["_05 Patch GRUB or Network"]
+    D6 --> D7["_06 Rebuild Checksums"]
+    
+    D7 --> D8["_07 Build ISO or IMG"]
+    D8 --> D9["_08 Flash to USB or SD Card"]
+    
+    D9 --> F{Optional Status Monitoring}
+    F -->|enabled| G["broadcast.sh - Status Server"]
+    F -->|disabled| H[End]
+    
+    G --> I["Receive Install Callbacks"]
+    I --> H
+    
+    subgraph templates["Configuration Templates"]
+        T1["ubuntu/templates/"]
+        T2["debian/templates/"]
+        T3["haos/templates/"]
+    end
+    
+    subgraph python["Python Package<br/>lib/python/assembler/"]
+        CM["ConfigManager"]
+        PM2["PasswordManager"]
+        TR2["TemplateRenderer"]
+        CLI["cli.py"]
+    end
+    
+    D5 -.renders.-> T1
+    D5 -.renders.-> T2
+    D5 -.renders.-> T3
+    
+    CR -.backed by.-> CM
+    TR -.backed by.-> TR2
+    PM -.uses.-> PM2
+    PY -.CLI for.-> CLI
+    
+    style python fill:#e1f5ff
+    style templates fill:#f3e5f5
+    style D3 fill:#fff9c4
+    style D5 fill:#fff9c4

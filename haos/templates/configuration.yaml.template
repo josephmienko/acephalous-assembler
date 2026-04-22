@@ -1,0 +1,46 @@
+# Home Assistant configuration pre-seeded during headless build
+# This skips the first-time setup wizard and pre-populates key settings
+
+homeassistant:
+  name: ${HA_LOCATION_NAME}
+  latitude: ${HA_LATITUDE}
+  longitude: ${HA_LONGITUDE}
+  elevation: ${HA_ELEVATION}
+  unit_system: ${HA_UNIT_SYSTEM}
+  time_zone: ${HA_TIMEZONE}
+
+# Enable the web interface
+http:
+  server_port: 8123
+
+# Enable logging
+logger:
+  default: info
+
+# Track the sun
+sun:
+
+# Enable frontend
+frontend:
+
+# Enable config editor
+config:
+
+# System health monitoring
+system_health:
+
+# History (keep 30 days)
+history:
+  purge_keep_days: 30
+
+# Recorder (database for history)
+recorder:
+  purge_keep_days: 30
+  db_url: sqlite:////config/home-assistant_v2.db
+
+# Automations (empty for now, added via UI or separate files)
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# Default integrations included by HA OS

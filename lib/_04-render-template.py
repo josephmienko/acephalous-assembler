@@ -4,70 +4,21 @@
 This script reads a simple ``KEY=VALUE`` config file, substitutes matching
 ``${KEY}`` placeholders in a template file, and writes the rendered result to
 an output path.
+
+Uses the ``assembler`` package for config loading and template rendering.
 """
 
 from __future__ import annotations
 
 import argparse
-import re
+import sys
 from pathlib import Path
 
+# Add lib/python to path to import assembler module
+sys.path.insert(0, str(Path(__file__).parent / "python"))
 
-def load_config(path: Path) -> dict[str, str]:
-    """Load shell-style key-value pairs from a config file.
-
-    Args:
-        path: Path to the config file.
-
-    Returns:
-        Mapping of config keys to string values.
-    """
-    data: dict[str, str] = {}
-    for raw_line in path.read_text(encoding="utf-8").splitlines():
-        line = raw_line.strip()
-        if not line or line.startswith("#") or "=" not in line:
-            continue
-        key, value = line.split("=", 1)
-        key = key.strip()
-        value = value.strip()
-        if (
-            (value.startswith('"') and value.endswith('"'))
-            or (value.startswith("'") and value.endswith("'"))
-        ):
-            value = value[1:-1]
-        data[key] = value
-    return data
-
-
-def render_template(template: str, values: dict[str, str]) -> str:
-    """Substitute ``${NAME}`` placeholders in a template string.
-
-    Args:
-        template: Template text containing placeholders.
-        values: Placeholder values.
-
-    Returns:
-        Rendered text.
-
-    Raises:
-        KeyError: If a referenced placeholder is missing.
-    """
-
-    def repl(match: re.Match[str]) -> str:
-        """Return the replacement value for a matched placeholder.
-
-        Args:
-            match: Regex match object containing a placeholder name.
-
-        Returns:
-            Replacement text for the placeholder.
-        """
-        key = match.group(1)
-        if key not in values:
-            raise KeyError(f"Missing template variable: {key}")
-        return values[key]
-
-    return re.sub(r"\$\{([A-Za-z_][A-Za-z0-9_]*)\}", repl, template)
+from assembler.config import ConfigManager  # noqa: E402
+from assembler.template import TemplateRenderer  # noqa: E402
 
 
 def main() -> int:
@@ -79,18 +30,25 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Render a template file from config.env"
     )
-    parser.add_argument("--config", required=True, help="Path to config.env")
-    parser.add_argument("--template", required=True, help="Path to template file")
-    parser.add_argument("--output", required=True, help="Path to output file")
+    parser.add_argument("--config", required=True,
+                        help="Path to config.env")
+    parser.add_argument("--template", required=True,
+                        help="Path to template file")
+    parser.add_argument("--output", required=True,
+                        help="Path to output file")
     args = parser.parse_args()
 
-    config = load_config(Path(args.config).expanduser())
-    template = Path(args.template).expanduser().read_text(encoding="utf-8")
-    rendered = render_template(template, config)
-
+    config_path = Path(args.config).expanduser()
+    template_path = Path(args.template).expanduser()
     output_path = Path(args.output).expanduser()
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(rendered, encoding="utf-8")
+
+    # Load configuration
+    config = ConfigManager(config_path)
+
+    # Render template using the loaded config
+    renderer = TemplateRenderer(config)
+    renderer.render_to_file(template_path, output_path)
+
     print(f"Wrote {output_path}")
     return 0
 

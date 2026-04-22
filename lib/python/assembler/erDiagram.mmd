@@ -1,0 +1,50 @@
+erDiagram
+    CONFIG_FILE ||--o{ CONFIG_MANAGER : "loaded_by"
+    CONFIG_MANAGER ||--o{ TEMPLATE_RENDERER : "feeds"
+    TEMPLATE_RENDERER ||--o{ OUTPUT_FILE : "produces"
+    
+    PASSWORD_INPUT ||--o{ PASSWORD_MANAGER : "hashes_via"
+    PASSWORD_MANAGER ||--|| CONFIG_MANAGER : "writes_to"
+    PASSWORD_MANAGER ||--|| CONFIG_FILE : "persisted_in"
+    
+    CONFIG_FILE {
+        string hostname UK
+        string username UK
+        string password_hash
+        string timezone
+        string keyboard_layout
+        string target_device
+    }
+    
+    CONFIG_MANAGER {
+        string config_path UK
+        dict environment
+        string load_config
+        string to_dict
+        string get
+        string save_output
+    }
+    
+    TEMPLATE_RENDERER {
+        dict config_data FK
+        string template_path UK
+        string render_output
+        string substitute_vars
+    }
+    
+    PASSWORD_MANAGER {
+        string algorithm
+        string generated_password
+        string hashed_output
+        bool verify_status
+    }
+    
+    PASSWORD_INPUT {
+        string raw_password
+        string algorithm_choice
+    }
+    
+    OUTPUT_FILE {
+        string filepath UK
+        string rendered_content
+    }

@@ -1,0 +1,18 @@
+# Systemd service to report Home Assistant first-boot status
+# Runs once on first boot, calls status server webhook with HA readiness
+
+[Unit]
+Description=Home Assistant First Boot Status Report
+After=home-assistant@homeassistant.service
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+User=homeassistant
+Group=homeassistant
+ExecStart=/usr/local/bin/ha-status-callback.sh
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

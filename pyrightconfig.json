@@ -1,0 +1,15 @@
+{
+  "typeCheckingMode": "basic",
+  "pythonVersion": "3.11",
+  "pythonPlatform": "Darwin",
+  "extraPaths": ["lib/python"],
+  "include": [
+    "lib",
+    "tests"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/__pycache__",
+    ".venv"
+  ]
+}

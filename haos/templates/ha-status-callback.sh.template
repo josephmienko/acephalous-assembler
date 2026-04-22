@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Home Assistant first-boot status callback
+# Reports to status server when HA is ready
+
+set -euo pipefail
+
+STATUS_IP="${HA_STATUS_IP:-}"
+STATUS_PORT="${HA_STATUS_PORT:-8081}"
+
+if [[ -z "$STATUS_IP" ]]; then
+  exit 0  # Status monitoring disabled
+fi
+
+# Wait for HA API to be ready (up to 2 minutes)
+for i in {1..120}; do
+  if curl -sf http://localhost:8123/api/ >/dev/null 2>&1; then
+    break
+  fi
+  sleep 1
+done
+
+# Report first-boot status
+curl -X POST "http://${STATUS_IP}:${STATUS_PORT}/homeassistant-ready" \
+  -H "Content-Type: application/json" \
+  -d "{\"hostname\": \"${HA_HOSTNAME:-homeassistant}\", \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
+  2>/dev/null || true
+
+exit 0

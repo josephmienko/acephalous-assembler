@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
-"""Patch Debian installer GRUB config for preseed-based automated installation.
+"""Patch Debian installer GRUB config for preseed-based automated \
+    installation.
 
-The script lowers the boot timeout, ensures the first menu entry is selected by
-default, and adds a preseed URL argument to automatically load preseed configuration.
+The script lowers the boot timeout, ensures the first menu \
+    entry is selected by
+default, and adds a preseed URL argument to automatically \
+    load preseed configuration.
 """
 
 from __future__ import annotations
@@ -68,7 +71,8 @@ def main() -> int:
         SystemExit: If the installer kernel line cannot be found.
     """
     parser = argparse.ArgumentParser(
-        description="Patch Debian installer grub.cfg for automated preseed installation"
+        description="Patch Debian installer grub.cfg \
+            for automated preseed installation"
     )
     parser.add_argument(
         "--root",
@@ -78,7 +82,8 @@ def main() -> int:
     parser.add_argument(
         "--preseed-url",
         default="",
-        help="URL to preseed configuration file (e.g., file:///cdrom/preseed.cfg)",
+        help="URL to preseed configuration file (e.g., \
+            file:///cdrom/preseed.cfg)",
     )
     args = parser.parse_args()
 

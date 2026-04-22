@@ -1,0 +1,17 @@
+[MASTER]
+init-hook='import sys; import os; sys.path.insert(0, os.path.join(os.path.dirname(__file__), "lib", "python"))'
+
+[MESSAGES CONTROL]
+disable=
+    wrong-import-position,
+    import-error,
+    deprecated-module,
+    invalid-name,
+    unused-import,
+    redefined-builtin,
+
+[DESIGN]
+max-line-length=79
+
+[FORMAT]
+max-line-length=79

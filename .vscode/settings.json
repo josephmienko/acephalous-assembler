@@ -1,5 +1,19 @@
 {
-    "black-formatter.args": [
-        "\"--line-length\", \"79\""
-    ]
+"black-formatter.args": [
+    "--line-length",
+    "79"
+],
+    "python.linting.pylintEnabled": true,
+    "python.linting.pylintArgs": [
+        "--rcfile=${workspaceFolder}/.pylintrc"
+    ],
+    "[python]": {
+        "editor.formatOnSave": false,
+        "editor.defaultFormatter": "ms-python.python"
+    },
+    "files.exclude": {
+        "**/__pycache__": true,
+        "**/.pytest_cache": true,
+        ".venv": true
+    }
 }

@@ -1,0 +1,18 @@
+# Static network configuration for Home Assistant OS
+# Rendered if HA_STATIC_IP is configured
+
+[connection]
+id=eth0
+type=802-3-ethernet
+interface-name=eth0
+autoconnect=true
+
+[ipv4]
+method=manual
+addresses1=${HA_STATIC_IP}/24,${HA_GATEWAY},0
+dns=${HA_NAMESERVER};
+dns-search=local
+ignore-auto-dns=true
+ignore-auto-routes=false
+dhcp-duid=
+dhcp-iaid=

@@ -4,12 +4,14 @@
 [![Coverage](https://github.com/josephmienko/acephalous-assembler/actions/workflows/coverage.yml/badge.svg)](https://github.com/josephmienko/acephalous-assembler/actions/workflows/coverage.yml)
 [![Status](https://github.com/josephmienko/acephalous-assembler/actions/workflows/status.yml/badge.svg)](https://github.com/josephmienko/acephalous-assembler/actions/workflows/status.yml)
 
-This bundle builds custom Linux ISOs with automated installation capabilities:
+This bundle builds custom Linux ISOs and disk images with automated installation capabilities:
 
 - **Ubuntu** — autoinstall with optional NoCloud live-installer credentials
 - **Debian** — preseed-based automated installation (experimental)
+- **Home Assistant OS** — Raspberry Pi 5 headless deployment (experimental)
 
-Both variants:
+All variants:
+
 - Extract and customize official distributor ISO images
 - Inject installer configuration (autoinstall.yaml or preseed.cfg)
 - Patch bootloader for unattended boot-to-install
@@ -21,14 +23,23 @@ Both variants:
 Choose your preferred workflow:
 
 **Ubuntu (recommended):** Standard autoinstall flow with cloud-init integration
+
 ```bash
 ./setup.sh
 ./build_and_flash.sh
 ```
 
 **Debian (experimental):**  Preseed-based Debian Installer flow
+
 ```bash
 ./setup.sh debian
+./build_and_flash.sh
+```
+
+**Home Assistant OS (experimental):** Raspberry Pi 5 headless deployment
+
+```bash
+./setup.sh haos
 ./build_and_flash.sh
 ```
 
@@ -46,6 +57,7 @@ cd acephalous-assembler
 ```
 
 This script will:
+
 - Generate a SHA-512 password hash and update `config.env` if missing
 - Persist whether NoCloud live-installer credentials should be included in the
   next build
@@ -152,6 +164,141 @@ The implementation scripts are organized in `lib/`:
 - `templates/nocloud-user-data.template.yaml` — optional live-installer cloud-init seed
 - `templates/nocloud-meta-data.template` — optional NoCloud meta-data
 
+## Architecture
+
+### Build Pipeline Flowchart
+
+Visualizes the 8-step shared build process and how the three OS variants feed into it:
+
+```mermaid
+flowchart TD
+    A["config.env"] --> B{Variant Choice}
+    B -->|ubuntu| C1["ubuntu/setup.sh"]
+    B -->|debian| C2["debian/setup.sh"]
+    B -->|haos| C3["haos/setup.sh"]
+    
+    C1 --> D1["Shared Lib Execution"]
+    C2 --> D1
+    C3 --> D1
+    
+    D1 --> D2["_01 Install Dependencies"]
+    D2 --> D3["_02 Generate Password Hash"]
+    D3 -.calls.-> PY["Python CLI<br/>assembler/cli.py hash"]
+    PY --> PM["PasswordManager<br/>Argon2/SHA-512"]
+    PM --> D3b["PASSWORD_HASH<br/>saved to config.env"]
+    
+    D3b --> D4["_03 Prepare Workdir"]
+    D3b --> E["ISO/IMG Download or Use Existing"]
+    E --> D4
+    
+    D4 --> D5["_04 Render Templates"]
+    D5 -.uses.-> CR["ConfigManager<br/>python-dotenv"]
+    D5 -.uses.-> TR["TemplateRenderer<br/>regex substitution"]
+    CR --> D5b["Load config.env"]
+    TR --> D5b
+    
+    D5b --> D6["_05 Patch GRUB or Network"]
+    D6 --> D7["_06 Rebuild Checksums"]
+    
+    D7 --> D8["_07 Build ISO or IMG"]
+    D8 --> D9["_08 Flash to USB or SD Card"]
+    
+    D9 --> F{Optional Status Monitoring}
+    F -->|enabled| G["broadcast.sh - Status Server"]
+    F -->|disabled| H[End]
+    
+    G --> I["Receive Install Callbacks"]
+    I --> H
+    
+    subgraph templates["Configuration Templates"]
+        T1["ubuntu/templates/"]
+        T2["debian/templates/"]
+        T3["haos/templates/"]
+    end
+    
+    subgraph python["Python Package<br/>lib/python/assembler/"]
+        CM["ConfigManager"]
+        PM2["PasswordManager"]
+        TR2["TemplateRenderer"]
+        CLI["cli.py"]
+    end
+    
+    D5 -.renders.-> T1
+    D5 -.renders.-> T2
+    D5 -.renders.-> T3
+    
+    CR -.backed by.-> CM
+    TR -.backed by.-> TR2
+    PM -.uses.-> PM2
+    PY -.CLI for.-> CLI
+    
+    style python fill:#e1f5ff
+    style templates fill:#f3e5f5
+    style D3 fill:#fff9c4
+    style D5 fill:#fff9c4
+```
+
+**Source:** [`lib/python/assembler/architecture-flowchart.mmd`](lib/python/assembler/architecture-flowchart.mmd)
+
+### Data Flow & Entity Relationships
+
+Shows how configuration data and passwords flow through the Python classes:
+
+```mermaid
+erDiagram
+    CONFIG_FILE ||--o{ CONFIG_MANAGER : "loaded_by"
+    CONFIG_MANAGER ||--o{ TEMPLATE_RENDERER : "feeds"
+    TEMPLATE_RENDERER ||--o{ OUTPUT_FILE : "produces"
+    
+    PASSWORD_INPUT ||--o{ PASSWORD_MANAGER : "hashes_via"
+    PASSWORD_MANAGER ||--|| CONFIG_MANAGER : "writes_to"
+    PASSWORD_MANAGER ||--|| CONFIG_FILE : "persisted_in"
+    
+    CONFIG_FILE {
+        string hostname UK
+        string username UK
+        string password_hash
+        string timezone
+        string keyboard_layout
+        string target_device
+    }
+    
+    CONFIG_MANAGER {
+        string config_path UK
+        dict environment
+        string load_config
+        string to_dict
+        string get
+        string save_output
+    }
+    
+    TEMPLATE_RENDERER {
+        dict config_data FK
+        string template_path UK
+        string render_output
+        string substitute_vars
+    }
+    
+    PASSWORD_MANAGER {
+        string algorithm
+        string generated_password
+        string hashed_output
+        bool verify_status
+    }
+    
+    PASSWORD_INPUT {
+        string raw_password
+        string algorithm_choice
+    }
+    
+    OUTPUT_FILE {
+        string filepath UK
+        string rendered_content
+    }
+```
+
+**Source:** [`lib/python/assembler/erDiagram.mmd`](lib/python/assembler/erDiagram.mmd)
+
 ## Notes
 
 - This workflow wipes the selected target disk and installs Ubuntu fresh.
@@ -172,7 +319,7 @@ Automated checks run on every push and pull request:
 ### Badges
 
 | Badge | Workflow | Purpose |
-|-------|----------|---------|
+| --- | --- | --- |
 | [![Validation](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/validate.yml) | Validation | Shell script linting, file structure, tests |
 | [![Coverage](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/coverage.yml) | Coverage | Test coverage percentage and reports |
 | [![Status](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml/badge.svg)](https://github.com/yourusername/ubuntu_install_status_bundle/actions/workflows/status.yml) | Status | Python and YAML validation |
@@ -180,11 +327,42 @@ Automated checks run on every push and pull request:
 ### Running Tests Locally
 
 Execute automated tests:
+
 ```bash
 ./tests/run-all-tests.sh
 ```
 
 Full test suite includes:
+
 - Unit tests for shared config functions
 - Integration tests for variant setup
 - 12+ passing validations
+
+## Development
+
+This project uses **Poetry** for Python dependency management.
+
+### Quick Start
+
+```bash
+poetry install      # Install dependencies
+poetry shell        # Activate virtual environment
+pytest              # Run tests
+```
+
+See [POETRY_QUICKSTART.md](POETRY_QUICKSTART.md) for quick setup, or [DEVELOPMENT.md](DEVELOPMENT.md) for full details.
+
+### Python Modules
+
+Core utilities in `lib/python/assembler/`:
+
+- **ConfigManager** — Load and manage .env-style configuration
+- **PasswordManager** — Generate and hash passwords (Argon2, SHA-512)
+- **TemplateRenderer** — Render templates with variable substitution
+
+### Password Hashing
+
+This project uses **Argon2** (modern best-practice) for password hashing, with fallback to SHA-512 for Debian preseed compatibility.
+
+- **Argon2**: GPU-resistant, configurable, recommended for new deployments
+- **SHA-512**: Legacy support for Debian preseed on older systems

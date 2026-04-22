@@ -11,6 +11,9 @@ case "$VARIANT" in
   debian)
     exec "$SCRIPT_DIR/debian/setup.sh" "${@:2}"
     ;;
+  haos)
+    exec "$SCRIPT_DIR/haos/setup.sh" "${@:2}"
+    ;;
   -h|--help)
     cat <<'EOF'
 Usage: ./setup.sh [VARIANT] [OPTIONS]
@@ -18,6 +21,7 @@ Usage: ./setup.sh [VARIANT] [OPTIONS]
 Variants:
   ubuntu    Ubuntu Server autoinstall (default)
   debian    Debian preseed installer
+  haos      Home Assistant OS on Raspberry Pi 5 (experimental)
 
 Ubuntu options:
   --include-nocloud-installer-credentials[=true|false]
@@ -26,10 +30,15 @@ Ubuntu options:
 Debian options:
   (see debian/README-DEBIAN.md)
 
+Home Assistant OS options:
+  --skip-download    Use existing HA_IMAGE in config.env
+  --download-only    Download image and exit
+
 Examples:
   ./setup.sh
   ./setup.sh ubuntu --include-nocloud-installer-credentials
   ./setup.sh debian
+  ./setup.sh haos
 EOF
     exit 0
     ;;
