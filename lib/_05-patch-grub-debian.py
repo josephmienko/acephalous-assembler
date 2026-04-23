@@ -4,7 +4,7 @@
 
 The script lowers the boot timeout, ensures the first menu \
     entry is selected by
-default, and adds a preseed URL argument to automatically \
+default, and adds a preseed file argument to automatically \
     load preseed configuration.
 """
 
@@ -14,15 +14,16 @@ import argparse
 from pathlib import Path
 
 
-PRESEED_ARG_PREFIX = "preseed/url="
+PRESEED_ARG_PREFIX = "preseed/file="
 
 
 def patch_linux_line(line: str, preseed_url: str) -> str:
-    """Normalize the installer kernel line and add preseed URL argument.
+    """Normalize the installer kernel line and add preseed file argument.
 
     Args:
         line: Original GRUB ``linux`` line.
-        preseed_url: URL pointing to preseed configuration file.
+        preseed_url: File path pointing to preseed configuration file
+            (e.g., /cdrom/preseed.cfg).
 
     Returns:
         Patched GRUB ``linux`` line.
@@ -82,8 +83,8 @@ def main() -> int:
     parser.add_argument(
         "--preseed-url",
         default="",
-        help="URL to preseed configuration file (e.g., \
-            file:///cdrom/preseed.cfg)",
+        help="File path to preseed configuration file (e.g., \
+            /cdrom/preseed.cfg)",
     )
     args = parser.parse_args()
 
