@@ -8,3 +8,15 @@ config.env
 
 # Status server logs
 status.ndjson
+
+# Generated files
+.DS_Store
+*.pyc
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.coverage
+dist/
+build/
+*.html
+README_files/

@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # Home Assistant first-boot status callback
-# Reports to status server when HA is ready
+# Reports to status server when HA is ready and creates bootstrap marker
 
 set -euo pipefail
 
 STATUS_IP="${HA_STATUS_IP:-}"
 STATUS_PORT="${HA_STATUS_PORT:-8081}"
+
+# Create bootstrap marker directory and file
+mkdir -p /var/lib/acephalous-assembler
+touch /var/lib/acephalous-assembler/bootstrap-complete
 
 if [[ -z "$STATUS_IP" ]]; then
   exit 0  # Status monitoring disabled

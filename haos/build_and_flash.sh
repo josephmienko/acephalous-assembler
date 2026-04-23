@@ -84,8 +84,21 @@ fi
 echo "[5/5] Finalizing image..."
 "$ROOT_DIR/lib/_10-finalize-haos-image.sh"
 
+# Generate handoff artifact for downstream appliance provisioning
+echo ""
+echo "Generating handoff artifact..."
+python3 "$ROOT_DIR/lib/_99-generate-handoff.py" \
+  --config "$CONFIG_FILE" \
+  --output-dir "$ROOT_DIR/.coordination"
+
+echo ""
+echo "✓ Home Assistant OS image build complete."
 echo ""
 echo "Home Assistant OS image built: $OUT"
+echo "Handoff documentation: .coordination/handoff-${HOSTNAME}-*.json"
 echo ""
 echo "To flash to Raspberry Pi 5:"
-echo "  ./build_and_flash.sh flash"
+echo "  cd .."
+echo "  ./build_and_flash.sh"
+echo ""
+echo "Next: Use crooked-sentry-appliance to configure Frigate, backups, and other services."

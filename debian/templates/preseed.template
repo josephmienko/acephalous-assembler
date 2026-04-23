@@ -37,7 +37,7 @@ d-i partman-md/device_remove_md boolean true
 
 # Use guided partitioning
 d-i preseed/early_command string debconf-set-selections /cdrom/preseed/preseed-early.cfg || true
-d-i preseed/late_command string in-target sed -i 's/^#\s*\(deb.*universe\)/\1/g' /etc/apt/sources.list; in-target apt-get update; in-target apt-get -y upgrade
+d-i preseed/late_command string mkdir -p /target/var/lib/acephalous-assembler /target/etc/systemd/system; in-target bash -c 'cat > /etc/systemd/system/acephalous-bootstrap-complete.service << "EOFUNIT"\n[Unit]\nDescription=Mark acephalous-assembler bootstrap complete\nAfter=multi-user.target\n[Service]\nType=oneshot\nExecStart=/usr/bin/touch /var/lib/acephalous-assembler/bootstrap-complete\nRemainAfterExit=yes\n[Install]\nWantedBy=multi-user.target\nEOFUNIT'; in-target systemctl daemon-reload; in-target systemctl enable acephalous-bootstrap-complete.service; in-target sed -i 's/^#\s*\(deb.*universe\)/\1/g' /etc/apt/sources.list; in-target apt-get update; in-target apt-get -y upgrade
 
 # Package settings
 tasksel tasksel/first multiselect standard system-tools

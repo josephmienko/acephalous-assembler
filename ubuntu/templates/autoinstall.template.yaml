@@ -44,3 +44,25 @@ autoinstall:
       url: http://${STATUS_IP}:${STATUS_PORT}/first-boot/{{ v1.instance_id }}/
       post: [instance_id, hostname, fqdn]
       tries: 5
+    
+    # Create first-boot marker via systemd unit
+    write_files:
+      - path: /etc/systemd/system/acephalous-bootstrap-complete.service
+        permissions: '0644'
+        content: |
+          [Unit]
+          Description=Mark acephalous-assembler bootstrap complete
+          After=cloud-final.service
+          After=multi-user.target
+          [Service]
+          Type=oneshot
+          ExecStart=/usr/bin/mkdir -p /var/lib/acephalous-assembler
+          ExecStart=/usr/bin/touch /var/lib/acephalous-assembler/bootstrap-complete
+          RemainAfterExit=yes
+          [Install]
+          WantedBy=multi-user.target
+    
+    runcmd:
+      - systemctl daemon-reload
+      - systemctl enable acephalous-bootstrap-complete.service
+      - systemctl start acephalous-bootstrap-complete.service

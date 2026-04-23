@@ -244,6 +244,8 @@ flowchart TD
 
 Shows how configuration data and passwords flow through the Python classes:
 
+<div style="width: 100%; max-width: 900px; margin: 0 auto;">
+
 ```mermaid
 erDiagram
     CONFIG_FILE ||--o{ CONFIG_MANAGER : "loaded_by"

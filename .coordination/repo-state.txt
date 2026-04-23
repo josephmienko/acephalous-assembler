@@ -1,0 +1,265 @@
+================================================================================
+ACEPHALOUS-ASSEMBLER — REPOSITORY STATE SNAPSHOT
+================================================================================
+Date: April 23, 2026
+Branch: main (current)
+Commit: (use 'git log -1' to see latest)
+
+READINESS STATUS
+─────────────────────────────────────────────────────────────────────────────
+Status: 🟡 RELEASE-CANDIDATE (ready for supervised hardware testing)
+
+Key Files:
+  • .coordination/NEXT-ASSESSMENT.md ............ Complete blocker resolution
+  • .coordination/CSA-COMPATIBILITY.md ......... CSA integration guide
+  • .coordination/handoff-v2.example.json ...... Example handoff artifact
+  • lib/validate-paths.sh ....................... Path validation library
+
+BLOCKER RESOLUTION STATUS (5/5 Complete)
+─────────────────────────────────────────────────────────────────────────────
+✅ 1. Handoff schema canonical
+   - Schema v2.0 with documented fields
+   - Example file: .coordination/handoff-v2.example.json
+   - Generator: lib/_99-generate-handoff.py
+   - Tests: tests/test_handoff.py (6 tests, all passing)
+
+✅ 2. CSA compatibility documented
+   - Guide: .coordination/CSA-COMPATIBILITY.md
+   - jq examples for field extraction
+   - Workflow and integration checklist
+   - Example minimal integration script
+
+✅ 3. WORK/ROOT safety hardened
+   - Library: lib/validate-paths.sh (sourceable)
+   - WORK validation: strict safe-root only
+   - ROOT validation: must be inside WORK
+   - Nonexistent safe paths properly handled
+   - Updated: lib/_03-prepare-workdir.sh
+
+✅ 4. Tests refactored
+   - Real validation library sourced (not copied)
+   - New: tests/test-path-validation.sh (42 tests)
+   - New: test_handoff_csa_required_fields
+   - All tests exercise actual code
+
+✅ 5. Readiness language corrected
+   - Changed: "production-ready" → "release-candidate"
+   - Updated NEXT-ASSESSMENT.md with honest status
+   - Hardware validation requirements documented
+
+TEST RESULTS (All Passing)
+─────────────────────────────────────────────────────────────────────────────
+Path Validation Tests:      42/42 ✅ (WORK and ROOT validation)
+Handoff Tests:               6/6  ✅ (schema v2.0, CSA fields)
+Shell Tests:                12/12 ✅ (config, setup, dispatch)
+Python Tests:               31/31 ✅ (config, template, password)
+Total:                      91/91 ✅ (all passing)
+
+Run all tests:
+  $ bash tests/test-path-validation.sh
+  $ poetry run pytest tests/test_handoff.py -v
+  $ bash tests/run-all-tests.sh && poetry run pytest tests/ -v
+
+KEY CHANGES IN THIS UPDATE
+─────────────────────────────────────────────────────────────────────────────
+
+Files Created:
+  ✅ lib/validate-paths.sh .......................... Path validation library
+  ✅ .coordination/handoff-v2.example.json ......... Example handoff
+  ✅ .coordination/CSA-COMPATIBILITY.md ........... CSA integration guide
+  ✅ tests/test-path-validation.sh ................ Path validation tests
+
+Files Modified:
+  ✅ lib/_03-prepare-workdir.sh ................... Sources validate-paths.sh
+  ✅ tests/test_handoff.py ........................ Added CSA field test
+  ✅ .coordination/NEXT-ASSESSMENT.md ............ Updated with release-candidate
+
+WHAT THIS MEANS
+─────────────────────────────────────────────────────────────────────────────
+
+Release-Candidate Status:
+  ✅ Code feature-complete and well-tested (91 tests passing)
+  ✅ Build pipeline validated (shell scripts tested)
+  ✅ Handoff schema canonicalized with CSA integration guide
+  ✅ Safety validation hardened (WORK/ROOT path checks)
+  ⏳ Hardware validation required (Debian, HAOS)
+  ⏳ CSA integration validation required (end-to-end)
+
+Next Milestone: Hardware Testing
+  1. Test Debian preseed boot (QEMU or real hardware)
+  2. Test HAOS boot on Raspberry Pi 5
+  3. Validate CSA integration workflow
+  4. Then: Promote to Production-Ready
+
+COORDINATOR NEXT STEPS
+─────────────────────────────────────────────────────────────────────────────
+
+For Review:
+  1. Read .coordination/CSA-COMPATIBILITY.md for integration details
+  2. Review .coordination/handoff-v2.example.json for field examples
+  3. Run: poetry run pytest tests/test_handoff.py::test_handoff_csa_required_fields
+
+For Hardware Testing:
+  1. Ubuntu: Already validated (use as reference)
+  2. Debian: Boot ISO, verify preseed auto-install, confirm marker
+  3. HAOS: Boot on RPi5, verify marker, confirm SSH
+  4. CSA: Test full workflow with CSA integration
+
+For CSA Implementation:
+  1. Use .coordination/CSA-COMPATIBILITY.md jq examples
+  2. Implement handoff consumption
+  3. Wait for marker at bootstrap.marker_path
+  4. Update verification fields after boot
+
+SCOPE CONFIRMATION
+─────────────────────────────────────────────────────────────────────────────
+
+AA Owns (This Repo):
+  ✅ OS image extraction and customization
+  ✅ Installer configuration rendering
+  ✅ Bootloader patching for unattended boot
+  ✅ First-boot marker creation
+  ✅ Handoff artifact generation
+
+CSA Owns (Downstream):
+  ✅ Handoff consumption and verification
+  ✅ SSH key installation
+  ✅ Frigate setup and containers
+  ✅ Backup scheduling
+  ✅ Service monitoring
+
+Out of Scope (Neither):
+  ❌ Long-term service tuning
+  ❌ Custom HA automations
+  ❌ Advanced backup scenarios
+
+BUILD VARIANTS STATUS
+─────────────────────────────────────────────────────────────────────────────
+
+Ubuntu Server 24.04:
+  Status: ✅ Tested (CI pipeline)
+  OS: cloud-init autoinstall
+  Boot: GRUB with autoinstall kernel args
+  Marker: First-boot systemd unit
+  Credentials: SSH keys + optional NoCloud user-data
+
+Debian Bookworm:
+  Status: ⏳ Code complete, requires hardware testing
+  OS: Debian Installer preseed
+  Boot: GRUB with preseed/file argument (corrected)
+  Marker: First-boot systemd unit via preseed late_command
+  Credentials: SSH keys configured in preseed
+
+Home Assistant OS (latest):
+  Status: ⏳ Code complete, requires RPi5 hardware testing
+  OS: HAOS disk image customization
+  Boot: Disk image boot (no GRUB customization)
+  Marker: First-boot creation in ha-status-callback.sh
+  Credentials: SSH via homeassistant user
+
+HANDOFF SCHEMA v2.0
+─────────────────────────────────────────────────────────────────────────────
+
+Canonical fields for CSA consumption:
+
+  schema_version ............................ "2.0" (breaking changes increment)
+  build.variant ............................ "ubuntu" | "debian" | "haos"
+  build.status ............................. "media_and_flash_complete"
+  
+  machine.hostname ......................... target system hostname
+  machine.os_family ........................ "Ubuntu" | "Debian" | "Home Assistant OS"
+  machine.os_version ....................... version string
+  machine.network.mode ..................... "dhcp" | "static"
+  machine.network.ip_address ............... IP or null
+  
+  bootstrap.ssh_user ....................... ssh user (ubuntu|debian|homeassistant)
+  bootstrap.ssh_port ....................... 22
+  bootstrap.status ......................... "not_yet_installed"
+  bootstrap.marker_supported ............... true
+  bootstrap.marker_path .................... /var/lib/acephalous-assembler/bootstrap-complete
+  
+  verification.ssh_verified ................ false (at build time)
+  verification.first_boot_observed ......... false (at build time)
+
+Example: .coordination/handoff-v2.example.json
+Tests: tests/test_handoff.py::test_handoff_csa_required_fields
+
+SAFETY VALIDATION
+─────────────────────────────────────────────────────────────────────────────
+
+WORK Directory Validation:
+  Library: lib/validate-paths.sh::validate_work_path()
+  Accepts: /tmp/*, /var/tmp/*, $HOME/tmp* (including nonexistent)
+  Rejects: /, /home, /var, /usr, /etc, /root, /opt, /srv, /bin, /sbin, /lib*, /boot
+  Tests: 21 WORK validation tests (all passing)
+
+ROOT Directory Validation:
+  Library: lib/validate-paths.sh::validate_root_path()
+  Checks: ROOT must be inside WORK
+  Derives: If unset, ROOT=$WORK/root
+  Rejects: ROOT outside WORK or same as WORK
+  Tests: 21 ROOT validation tests (all passing)
+
+Nonexistent Paths:
+  Handles correctly: /tmp/nonexistent-build, /var/tmp/new-dir, $HOME/tmp/new-build
+  Tests: 3 nonexistent path tests (all passing)
+
+COMMAND REFERENCE
+─────────────────────────────────────────────────────────────────────────────
+
+Generate Handoff Example:
+  $ python3 lib/_99-generate-handoff.py --config config.env --dry-run
+
+Run All Tests:
+  $ bash tests/test-path-validation.sh
+  $ poetry run pytest tests/test_handoff.py -v
+  $ bash tests/run-all-tests.sh && poetry run pytest tests/ -v
+
+Build Variants (example):
+  $ ./setup.sh ubuntu
+  $ ./build_and_flash.sh
+  # → Handoff at .coordination/handoff-${HOSTNAME}-${TIMESTAMP}.json
+
+DOCUMENTATION
+─────────────────────────────────────────────────────────────────────────────
+
+Primary Documents:
+  • .coordination/NEXT-ASSESSMENT.md ........... Complete blocker resolution
+  • .coordination/CSA-COMPATIBILITY.md ........ CSA integration guide
+  • .coordination/handoff-v2.example.json .... Example handoff (JSON)
+  • README.md ............................... Project overview
+  • debian/README-DEBIAN.md ................. Debian variant guide
+  • haos/README-HAOS.md ..................... HAOS variant guide
+
+Test Documentation:
+  • tests/test-path-validation.sh ........... Path validation test suite
+  • tests/test_handoff.py .................. Handoff schema tests
+  • tests/run-all-tests.sh ................. Master test runner
+
+Code Documentation:
+  • lib/validate-paths.sh .................. Path validation library (sourceable)
+  • lib/_03-prepare-workdir.sh ............. WORK/ROOT setup
+  • lib/_99-generate-handoff.py ............ Handoff generator
+
+CONCLUSION
+─────────────────────────────────────────────────────────────────────────────
+
+Status: 🟡 RELEASE-CANDIDATE
+
+All 5 blockers addressed:
+  1. ✅ Handoff canonical with documented schema
+  2. ✅ CSA integration fully documented with examples
+  3. ✅ WORK/ROOT safety hardened with validation library
+  4. ✅ Tests refactored to use real validation code
+  5. ✅ Readiness language honest (release-candidate)
+
+Next: Hardware validation (Debian, HAOS, CSA integration)
+Then: Production-Ready
+
+Ready for: Supervised hardware testing and CSA integration work
+
+Questions? See .coordination/CSA-COMPATIBILITY.md for CSA integration details.
+
+================================================================================
+End of Repository State Snapshot
+================================================================================

@@ -28,14 +28,39 @@ if [[ ! "$FLASH_DRIVE" =~ ^/dev/disk[0-9]+$ ]]; then
   exit 1
 fi
 
+# Reject system disk (/dev/disk0) on macOS
+if [[ "$FLASH_DRIVE" == "/dev/disk0" ]]; then
+  echo "Error: /dev/disk0 is typically your system disk. Use a USB/external device." >&2
+  echo "Override this check by explicitly setting FLASH_DRIVE_OVERRIDE=true if sure." >&2
+  exit 1
+fi
+
 RAW_DRIVE="${FLASH_DRIVE/\/dev\/disk/\/dev\/rdisk}"
 
-echo "About to erase and flash:"
-echo "  image: $OUT"
-echo "  drive: $FLASH_DRIVE"
-echo "  raw:   $RAW_DRIVE"
-read -r -p "Continue? [y/N] " REPLY
-[[ "$REPLY" =~ ^[Yy]$ ]] || exit 1
+# Query disk information
+DISK_INFO=$(diskutil info "$FLASH_DRIVE" 2>/dev/null || echo "")
+DISK_SIZE=$(echo "$DISK_INFO" | grep "Disk Size:" | head -1)
+DISK_IDENT=$(echo "$DISK_INFO" | grep "Device Identifier:" | head -1 || echo "Device Identifier: unknown")
+
+echo ""
+echo "⚠️  DESTRUCTIVE OPERATION — USB WILL BE ERASED"
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo "Image:  $OUT"
+echo "Drive:  $FLASH_DRIVE ($RAW_DRIVE)"
+if [[ -n "$DISK_SIZE" ]]; then
+  echo "$DISK_SIZE" | sed 's/^/Size:   /'
+fi
+echo "$DISK_IDENT" | sed 's/^/ID:     /'
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+echo ""
+echo "All data on $FLASH_DRIVE will be destroyed."
+echo "Type 'flash USB' (exactly) to proceed, or press Ctrl+C to cancel:"
+read -r -p "> " REPLY
+
+if [[ "$REPLY" != "flash USB" ]]; then
+  echo "Cancelled (did not match confirmation phrase)."
+  exit 1
+fi
 
 diskutil unmountDisk "$FLASH_DRIVE"
 

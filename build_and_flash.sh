@@ -23,8 +23,12 @@ case "$BUILD_VARIANT" in
   debian)
     exec "$SCRIPT_DIR/debian/build_and_flash.sh"
     ;;
+  haos)
+    exec "$SCRIPT_DIR/haos/build_and_flash.sh"
+    ;;
   *)
     echo "Error: Unknown BUILD_VARIANT '$BUILD_VARIANT' in config.env" >&2
+    echo "Supported variants: ubuntu, debian, haos" >&2
     exit 1
     ;;
 esac

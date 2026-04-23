@@ -18,6 +18,7 @@ This variant builds a custom Debian ISO with preseed automation, similar to the 
 ```
 
 This will:
+
 - Install required dependencies (same as Ubuntu)
 - Generate a password hash for the root or default user
 - Set `BUILD_VARIANT="debian"` in `config.env`
@@ -38,6 +39,7 @@ Key variables in `config.env`:
 ```
 
 This will:
+
 1. Extract the Debian ISO
 2. Render `preseed.template` and inject into ISO root
 3. Rebuild ISO with updated checksums
@@ -54,6 +56,7 @@ Edit `debian/templates/preseed.template` to customize the installation:
 - Locale and keyboard settings
 
 Variables available (from `config.env`):
+
 - `${HOSTNAME}` — target system hostname
 - `${USERNAME}` — target username
 - `${PASSWORD_HASH}` — SHA-512 hashed password
@@ -61,11 +64,9 @@ Variables available (from `config.env`):
 
 ## Known Limitations
 
-1. **Preseed URL not yet patched into GRUB** — Unlike Ubuntu autoinstall, Debian preseed typically requires a network URL or file location specified at boot time. Future work will implement kernel argument patching for local preseed injection.
+1. **Status reporting** — Cloud-init may not be available by default on Debian. Preseed-based installations can trigger webhooks via custom scripts if needed (similar to HAOS), but this is not yet implemented. Status callbacks would need separate integration similar to the Ubuntu phone_home or custom systemd units.
 
-2. **Status reporting** — Cloud-init may not be available by default on Debian. Status callbacks would need separate configuration.
-
-3. **NoCloud compatibility** — Preseed and NoCloud are separate mechanisms; they don't combine like Ubuntu's autoinstall + optional NoCloud.
+2. **NoCloud compatibility** — Preseed and NoCloud are separate mechanisms; they don't combine like Ubuntu's autoinstall + optional NoCloud.
 
 ## Testing
 
@@ -76,6 +77,7 @@ qemu-system-x86_64 -cdrom /path/to/debian-autoinstall.iso -m 2048
 ```
 
 Then interrupt the boot and add:
+
 ```
 preseed/file=/cdrom/preseed.cfg
 ```

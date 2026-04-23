@@ -28,16 +28,25 @@ python3 "$ROOT_DIR/lib/_04-render-template.py" \
 # Patch GRUB for preseed-based automated installation
 python3 "$ROOT_DIR/lib/_05-patch-grub-debian.py" \
   --root "$ROOT" \
-  --preseed-url "file:///cdrom/preseed.cfg"
+  --preseed-url "/cdrom/preseed.cfg"
 
 python3 "$ROOT_DIR/lib/_06-rebuild-md5.py" --root "$ROOT"
 
 "$ROOT_DIR/lib/_07-build-iso.sh"
 "$ROOT_DIR/lib/_08-flash-image.sh"
 
+# Generate handoff artifact for downstream appliance provisioning
 echo ""
-echo "Debian preseed ISO built: $OUT"
+echo "Generating handoff artifact..."
+python3 "$ROOT_DIR/lib/_99-generate-handoff.py" \
+  --config "$CONFIG_FILE" \
+  --output-dir "$ROOT_DIR/.coordination"
+
+echo ""
+echo "✓ Debian preseed ISO build and flash complete."
 echo ""
 echo "Preseed configuration: $ROOT/preseed.cfg"
+echo "Handoff documentation: .coordination/handoff-${HOSTNAME}-*.json"
 echo "To customize preseed, edit the template and rebuild:"
 echo "  $SCRIPT_DIR/templates/preseed.template"
+echo "Next: Use crooked-sentry-appliance to configure and deploy appliance services."

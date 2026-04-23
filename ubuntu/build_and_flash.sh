@@ -49,3 +49,16 @@ python3 "$ROOT_DIR/lib/_06-rebuild-md5.py" --root "$ROOT"
 
 "$ROOT_DIR/lib/_07-build-iso.sh"
 "$ROOT_DIR/lib/_08-flash-image.sh"
+
+# Generate handoff artifact for downstream appliance provisioning
+echo ""
+echo "Generating handoff artifact..."
+python3 "$ROOT_DIR/lib/_99-generate-handoff.py" \
+  --config "$CONFIG_FILE" \
+  --output-dir "$ROOT_DIR/.coordination"
+
+echo ""
+echo "✓ Ubuntu autoinstall ISO build and flash complete."
+echo ""
+echo "Handoff documentation: .coordination/handoff-${HOSTNAME}-*.json"
+echo "Next: Use crooked-sentry-appliance to configure and deploy appliance services."
