@@ -62,11 +62,41 @@ Variables available (from `config.env`):
 - `${PASSWORD_HASH}` — SHA-512 hashed password
 - `${DEBIAN_SUITE}` — debian release
 
+## Cloud-Init Handoff
+
+Debian uses preseed for the installer and cloud-init for first boot. The
+preseed installs `cloud-init`, `openssh-server`, `curl`, and
+`ca-certificates`, then writes a NoCloud seed under:
+
+- `/var/lib/cloud/seed/nocloud/meta-data`
+- `/var/lib/cloud/seed/nocloud/user-data`
+
+On first boot, cloud-init creates the acephalous bootstrap marker and posts to
+the configured status server with `phone_home`.
+
+## Headless Disk Selection
+
+The Debian installer is configured for destructive, headless whole-disk
+installation. During `partman/early_command`, it detects the disk mounted at
+`/cdrom` as the installation media, excludes that disk, then selects the
+largest remaining disk for guided partitioning. The selected disk is posted to
+`/debian-install-status` when the installer network is available.
+
+This is intended for appliance bootstrap. Do not boot this media on a machine
+with additional disks you want to preserve.
+
 ## Known Limitations
 
-1. **Status reporting** — Cloud-init may not be available by default on Debian. Preseed-based installations can trigger webhooks via custom scripts if needed (similar to HAOS), but this is not yet implemented. Status callbacks would need separate integration similar to the Ubuntu phone_home or custom systemd units.
+1. **Status reporting** — Debian preseed sends best-effort callbacks to
+   `/debian-install-status` during installer execution. First-boot reporting
+   is handled by cloud-init's `phone_home` module at
+   `/first-boot/debian-${HOSTNAME}/`. These callbacks depend on network
+   reachability to the status server and never block installation if the server
+   is unavailable.
 
-2. **NoCloud compatibility** — Preseed and NoCloud are separate mechanisms; they don't combine like Ubuntu's autoinstall + optional NoCloud.
+2. **NoCloud compatibility** — Preseed and NoCloud remain separate mechanisms:
+   preseed performs installation; cloud-init consumes the NoCloud seed only
+   after the installed system boots.
 
 ## Testing
 

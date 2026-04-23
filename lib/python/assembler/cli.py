@@ -10,15 +10,17 @@ import argparse
 import sys
 from pathlib import Path
 
-# Add parent to path to import assembler module
-sys.path.insert(0, str(Path(__file__).parent))
+# Add lib/python to path to import the assembler package when this file is
+# executed directly rather than through an installed Poetry environment.
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from assembler.config import ConfigManager  # noqa: E402
-from assembler.password import PasswordManager  # noqa: E402
 
 
 def generate_hash(args: argparse.Namespace) -> int:
     """Generate a password hash."""
+    from assembler.password import PasswordManager
+
     pm = PasswordManager()
 
     # Generate password if not provided
@@ -40,6 +42,8 @@ def generate_hash(args: argparse.Namespace) -> int:
 
 def set_in_config(args: argparse.Namespace) -> int:
     """Generate hash and set in config.env."""
+    from assembler.password import PasswordManager
+
     config = ConfigManager(args.config)
     pm = PasswordManager()
 

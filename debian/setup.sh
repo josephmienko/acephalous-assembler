@@ -17,10 +17,36 @@ Usage: ./setup.sh debian [OPTIONS]
 Debian-specific setup for automated preseed installation.
 
 Options:
-  (none currently)
+  --skip-download    Use existing ISO in config.env and do not download
+  --download-only    Download/update Debian ISO path and exit
 
 EOF
 }
+
+SKIP_DOWNLOAD="false"
+DOWNLOAD_ONLY="false"
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --skip-download)
+      SKIP_DOWNLOAD="true"
+      shift
+      ;;
+    --download-only)
+      DOWNLOAD_ONLY="true"
+      shift
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1" >&2
+      usage >&2
+      exit 1
+      ;;
+  esac
+done
 
 if [[ ! -f "$CONFIG_FILE" ]]; then
   if [[ -f "$EXAMPLE_FILE" ]]; then
@@ -40,6 +66,15 @@ add_config_var "$CONFIG_FILE" "LIVE_INSTALLER_USER" "root"
 
 echo "Installing dependencies ..."
 "$ROOT_DIR/lib/_01-install-deps.sh"
+
+if [[ "$SKIP_DOWNLOAD" == "false" ]]; then
+  "$ROOT_DIR/lib/_09-download-debian-iso.sh"
+fi
+
+if [[ "$DOWNLOAD_ONLY" == "true" ]]; then
+  echo "Download-only mode: exiting after Debian ISO update"
+  exit 0
+fi
 
 echo "Generating a password hash and updating config.env ..."
 "$ROOT_DIR/lib/_02-generate-password-hash.sh"

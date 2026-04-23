@@ -29,18 +29,26 @@ d-i clock-setup/utc boolean true
 d-i time/zone string UTC
 
 # Partition settings
+d-i partman/early_command string cdrom_disk="$(awk '$2=="/cdrom"{print $1}' /proc/mounts | sed 's/[0-9]*$//' | sed 's/p[0-9]*$//' | head -n1)"; target_disk="$(for disk in $(list-devices disk); do [ "$disk" = "$cdrom_disk" ] && continue; base="$(basename "$disk")"; size="$(cat /sys/block/$base/size 2>/dev/null || echo 0)"; echo "$size $disk"; done | sort -nr | sed -n '1s/^[0-9][0-9]* //p')"; [ -n "$target_disk" ] && debconf-set partman-auto/disk "$target_disk"; payload="$(printf '{"variant":"debian","stage":"partman_early","hostname":"${HOSTNAME}","status":"selected_disk","disk":"%s","cdrom_disk":"%s"}' "$target_disk" "$cdrom_disk")"; wget -qO- --timeout=5 --header='Content-Type: application/json' --post-data="$payload" http://${STATUS_IP}:${STATUS_PORT}/debian-install-status || true
+d-i partman-auto/method string regular
+d-i partman-auto/choose_recipe select atomic
 d-i partman/choose_partition select finish
 d-i partman/confirm boolean true
 d-i partman/confirm_nooverflow boolean true
+d-i partman/confirm_nooverwrite boolean true
+d-i partman-partitioning/confirm_write_new_label boolean true
 d-i partman-lvm/device_remove_lvm boolean true
 d-i partman-md/device_remove_md boolean true
+d-i partman-lvm/confirm boolean true
+d-i partman-lvm/confirm_nooverwrite boolean true
 
 # Use guided partitioning
-d-i preseed/early_command string debconf-set-selections /cdrom/preseed/preseed-early.cfg || true
-d-i preseed/late_command string mkdir -p /target/var/lib/acephalous-assembler /target/etc/systemd/system; in-target bash -c 'cat > /etc/systemd/system/acephalous-bootstrap-complete.service << "EOFUNIT"\n[Unit]\nDescription=Mark acephalous-assembler bootstrap complete\nAfter=multi-user.target\n[Service]\nType=oneshot\nExecStart=/usr/bin/touch /var/lib/acephalous-assembler/bootstrap-complete\nRemainAfterExit=yes\n[Install]\nWantedBy=multi-user.target\nEOFUNIT'; in-target systemctl daemon-reload; in-target systemctl enable acephalous-bootstrap-complete.service; in-target sed -i 's/^#\s*\(deb.*universe\)/\1/g' /etc/apt/sources.list; in-target apt-get update; in-target apt-get -y upgrade
+d-i preseed/early_command string debconf-set-selections /cdrom/preseed/preseed-early.cfg || true; wget -qO- --timeout=5 --header='Content-Type: application/json' --post-data='{"variant":"debian","stage":"early_command","hostname":"${HOSTNAME}","status":"installer_started"}' http://${STATUS_IP}:${STATUS_PORT}/debian-install-status || true
+d-i preseed/late_command string mkdir -p /target/var/lib/cloud/seed/nocloud /target/etc/cloud/cloud.cfg.d; printf '%s\n' 'instance-id: acephalous-${HOSTNAME}' 'local-hostname: ${HOSTNAME}' > /target/var/lib/cloud/seed/nocloud/meta-data; printf '%s\n' '#cloud-config' 'preserve_hostname: false' 'hostname: ${HOSTNAME}' 'ssh_pwauth: true' 'phone_home:' '  url: http://${STATUS_IP}:${STATUS_PORT}/first-boot/debian-${HOSTNAME}/' '  post: [instance_id, hostname, fqdn]' '  tries: 5' 'write_files:' '  - path: /run/acephalous-runcmd-status.json' '    permissions: "0644"' '    content: |' '      {"variant":"debian","stage":"cloud_init_runcmd","hostname":"${HOSTNAME}","status":"ready","marker_path":"/var/lib/acephalous-assembler/bootstrap-complete"}' 'runcmd:' '  - [ mkdir, -p, /var/lib/acephalous-assembler ]' '  - [ touch, /var/lib/acephalous-assembler/bootstrap-complete ]' '  - [ sh, -c, "curl -fsS -m 15 -X POST -H '\''Content-Type: application/json'\'' --data-binary @/run/acephalous-runcmd-status.json http://${STATUS_IP}:${STATUS_PORT}/debian-install-status || true" ]' > /target/var/lib/cloud/seed/nocloud/user-data; printf '%s\n' 'datasource_list: [ NoCloud, None ]' > /target/etc/cloud/cloud.cfg.d/90_acephalous_nocloud.cfg; in-target /bin/sh -c 'payload="{\"variant\":\"debian\",\"stage\":\"late_command\",\"hostname\":\"${HOSTNAME}\",\"status\":\"install_complete\"}"; curl -fsS -m 10 -X POST -H "Content-Type: application/json" -d "$payload" "http://${STATUS_IP}:${STATUS_PORT}/debian-install-status" || true'; in-target sed -i 's/^#\s*\(deb.*universe\)/\1/g' /etc/apt/sources.list; in-target apt-get update; in-target apt-get -y upgrade
 
 # Package settings
 tasksel tasksel/first multiselect standard system-tools
+d-i pkgsel/include string openssh-server cloud-init curl ca-certificates
 
 # SSH server
 openssh-server openssh-server/permit-root-login boolean false

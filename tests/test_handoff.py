@@ -131,6 +131,35 @@ def test_handoff_generation_haos_dhcp() -> None:
     assert handoff["machine"]["network"]["ip_address"] is None
 
 
+def test_handoff_generation_haos_direct_image() -> None:
+    """Direct HAOS images should not claim injected marker support."""
+    config_dict = {
+        "HOSTNAME": "homeassistant",
+        "USERNAME": "stale-debian-user",
+        "HA_USERNAME": "homeassistant",
+        "BUILD_VARIANT": "haos",
+        "HAOS_DIRECT_IMAGE": "true",
+        "HA_STATIC_IP": "",
+    }
+
+    spec = importlib.util.spec_from_file_location(
+        "_99_generate_handoff",
+        Path(__file__).parent.parent / "lib" / "_99-generate-handoff.py",
+    )
+    if spec is None or spec.loader is None:
+        pytest.skip("Could not load _99-generate-handoff.py")
+
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+
+    handoff = module.generate_handoff(config_dict)
+
+    assert handoff["bootstrap"]["ssh_user"] == "homeassistant"
+    assert handoff["bootstrap"]["marker_supported"] is False
+    assert handoff["bootstrap"]["marker_path"] is None
+    assert "Official Home Assistant OS image" in handoff["handoff_notes"]
+
+
 def test_handoff_generation_no_secrets() -> None:
     """Verify that handoff contains no password hashes or secrets."""
     config_dict = {

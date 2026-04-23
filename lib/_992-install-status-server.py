@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Receive and display Ubuntu autoinstall status callbacks.
+"""Receive and display acephalous-assembler install status callbacks.
 
-This server accepts POST requests from Ubuntu autoinstall's ``reporting``
-webhook and cloud-init's ``phone_home`` feature. It stores each event as
+This server accepts POST requests from Ubuntu autoinstall, Debian preseed,
+and Home Assistant OS first-boot callbacks. It stores each event as
 line-delimited JSON and serves a small HTML status page for quick inspection.
 """
 
@@ -241,7 +241,7 @@ def make_handler(store: EventStore):
 <meta charset=\"utf-8\">
 <meta name=\"viewport\" \
 content=\"width=device-width,initial-scale=1\">
-<title>Ubuntu Install Status</title>
+<title>Acephalous Install Status</title>
 <style>
 body {{
   font-family: -apple-system, BlinkMacSystemFont,
@@ -274,10 +274,11 @@ pre {{
 </style>
 </head>
 <body>
-<h1>Ubuntu install status</h1>
-<p class=\"small\">POST endpoints: <code>/install-status</code> \
-and <code>/first-boot/&lt;instance-id&gt;/</code>. \
-Health check: <code>/healthz</code>.</p>
+<h1>Acephalous install status</h1>
+<p class=\"small\">POST endpoints include <code>/install-status</code>, \
+<code>/first-boot/&lt;instance-id&gt;/</code>, \
+<code>/debian-install-status</code>, and \
+<code>/homeassistant-ready</code>. Health check: <code>/healthz</code>.</p>
 <p><strong>{store.count()}</strong> event(s) received.</p>
 {rows_html}
 </body>
@@ -304,7 +305,7 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         Parsed argument namespace.
     """
     parser = argparse.ArgumentParser(
-        description="Receive Ubuntu autoinstall status webhooks"
+        description="Receive acephalous-assembler install status webhooks"
     )
     parser.add_argument(
         "--host",

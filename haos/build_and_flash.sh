@@ -9,13 +9,65 @@ CONFIG_FILE="$ROOT_DIR/config.env"
 # shellcheck source=/dev/null
 source "$ROOT_DIR/lib/_00-common-functions.sh"
 
-# Validate config and password hash
+load_config "$CONFIG_FILE"
+HAOS_DIRECT_IMAGE="${HAOS_DIRECT_IMAGE:-false}"
+
+prepare_direct_image() {
+  if [[ ! -f "${OUT:-}" ]]; then
+    if [[ -z "${HA_IMAGE:-}" || ! -f "$HA_IMAGE" ]]; then
+      "$ROOT_DIR/lib/_09-download-haos-image.sh"
+      load_config "$CONFIG_FILE"
+    fi
+
+    case "$HA_IMAGE" in
+      *.img.xz)
+        echo "Decompressing HAOS image: $HA_IMAGE -> $OUT"
+        xz -dkc "$HA_IMAGE" > "${OUT}.tmp"
+        mv "${OUT}.tmp" "$OUT"
+        ;;
+      *.img.gz)
+        echo "Decompressing HAOS image: $HA_IMAGE -> $OUT"
+        gunzip -c "$HA_IMAGE" > "${OUT}.tmp"
+        mv "${OUT}.tmp" "$OUT"
+        ;;
+      *.img)
+        echo "Copying HAOS image: $HA_IMAGE -> $OUT"
+        cp "$HA_IMAGE" "$OUT"
+        ;;
+      *)
+        echo "Error: unsupported HA_IMAGE extension: ${HA_IMAGE:-unset}" >&2
+        exit 1
+        ;;
+    esac
+  fi
+}
+
+if [[ "$HAOS_DIRECT_IMAGE" == "true" ]]; then
+  echo "Flashing official Home Assistant OS image for Raspberry Pi 5..."
+  echo "Mode: direct image (no config injection)"
+  echo ""
+
+  prepare_direct_image
+  "$ROOT_DIR/lib/_08-flash-image.sh"
+
+  echo ""
+  echo "Generating handoff artifact..."
+  python3 "$ROOT_DIR/lib/_99-generate-handoff.py" \
+    --config "$CONFIG_FILE" \
+    --output-dir "$ROOT_DIR/.coordination"
+
+  echo ""
+  echo "✓ Home Assistant OS direct image flash complete."
+  echo ""
+  echo "Home Assistant OS image flashed: $OUT"
+  echo "Handoff documentation: .coordination/handoff-${HOSTNAME}-*.json"
+  exit 0
+fi
+
+# Validate config and password hash for image injection mode.
 if ! validate_config_and_hash "$CONFIG_FILE"; then
   exit 1
 fi
-
-# Load config into environment
-load_config "$CONFIG_FILE"
 
 echo "Building Home Assistant OS image for Raspberry Pi 5..."
 echo ""

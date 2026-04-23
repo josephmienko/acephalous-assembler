@@ -1,0 +1,41 @@
+{
+  "schema_version": "2.0",
+  "generated_at": "2026-04-23T11:17:51.906646+00:00",
+  "repo": {
+    "name": "acephalous-assembler",
+    "version": "0.4.0",
+    "url": "https://github.com/josephmienko/acephalous-assembler"
+  },
+  "build": {
+    "variant": "debian",
+    "timestamp": "2026-04-23T11:17:51.906646+00:00",
+    "status": "media_and_flash_complete"
+  },
+  "machine": {
+    "hostname": "cc-overseer-minipc",
+    "os_family": "Debian",
+    "os_version": "Trixie",
+    "network": {
+      "mode": "dhcp",
+      "ip_address": null
+    }
+  },
+  "bootstrap": {
+    "ssh_user": "bossbitch",
+    "ssh_port": 22,
+    "status": "not_yet_installed",
+    "marker_supported": true,
+    "marker_path": "/var/lib/acephalous-assembler/bootstrap-complete",
+    "status_server": {
+      "ip": "192.168.0.15",
+      "port": 8081,
+      "webhook_path": "/install-status or /homeassistant-ready"
+    }
+  },
+  "verification": {
+    "ssh_verified": false,
+    "first_boot_observed": false,
+    "notes": "These fields are not populated at build time. After target system boots and first-boot systemd unit completes, crooked-sentry-appliance should: (1) verify SSH access, (2) check for marker file, (3) update verification fields, (4) archive this handoff for audit."
+  },
+  "handoff_notes": "Media and flash complete. ISO/image is ready for installation. This is a pre-installation handoff: the target system has not yet booted. Downstream appliance provisioning should use machine.hostname and bootstrap.ssh_user to access the system after installation completes and first-boot marker is created."
+}

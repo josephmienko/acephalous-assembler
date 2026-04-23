@@ -4,8 +4,9 @@
 
 set -euo pipefail
 
-STATUS_IP="${HA_STATUS_IP:-}"
-STATUS_PORT="${HA_STATUS_PORT:-8081}"
+STATUS_IP="${STATUS_IP}"
+STATUS_PORT="${STATUS_PORT}"
+HOSTNAME="${HOSTNAME}"
 
 # Create bootstrap marker directory and file
 mkdir -p /var/lib/acephalous-assembler
@@ -26,7 +27,7 @@ done
 # Report first-boot status
 curl -X POST "http://${STATUS_IP}:${STATUS_PORT}/homeassistant-ready" \
   -H "Content-Type: application/json" \
-  -d "{\"hostname\": \"${HA_HOSTNAME:-homeassistant}\", \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
+  -d "{\"variant\": \"haos\", \"stage\": \"homeassistant_ready\", \"hostname\": \"${HOSTNAME}\", \"status\": \"ready\", \"marker_path\": \"/var/lib/acephalous-assembler/bootstrap-complete\", \"timestamp\": \"$(date -u +%Y-%m-%dT%H:%M:%SZ)\"}" \
   2>/dev/null || true
 
 exit 0

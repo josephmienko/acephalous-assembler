@@ -119,9 +119,12 @@ def generate_handoff(
         Dictionary ready for JSON serialization.
     """
     hostname = config_dict.get("HOSTNAME", "unknown")
-    username = config_dict.get("USERNAME", "unknown")
-    ssh_port = 22
     build_variant = config_dict.get("BUILD_VARIANT", "unknown")
+    if build_variant == "haos":
+        username = config_dict.get("HA_USERNAME", "homeassistant")
+    else:
+        username = config_dict.get("USERNAME", "unknown")
+    ssh_port = 22
     status_ip = config_dict.get("STATUS_IP", "")
     status_port = config_dict.get("STATUS_PORT", "8081")
 
@@ -139,8 +142,28 @@ def generate_handoff(
 
     timestamp = datetime.now(timezone.utc).isoformat()
 
-    # Determine which variants support first-boot markers
+    haos_direct_image = (
+        config_dict.get("HAOS_DIRECT_IMAGE", "").lower() == "true"
+    )
+
+    # Determine which variants support first-boot markers.
     marker_supported = build_variant in ("ubuntu", "debian", "haos")
+    if build_variant == "haos" and haos_direct_image:
+        marker_supported = False
+
+    handoff_notes = (
+        "Media and flash complete. ISO/image is ready for installation. "
+        "This is a pre-installation handoff: the target system has not "
+        "yet booted. Downstream appliance provisioning should use "
+        "machine.hostname and bootstrap.ssh_user to access the system "
+        "after installation completes and first-boot marker is created."
+    )
+    if build_variant == "haos" and haos_direct_image:
+        handoff_notes = (
+            "Official Home Assistant OS image flashed directly. No "
+            "acephalous-assembler first-boot marker or callback was injected. "
+            "Use Home Assistant OS discovery or the web UI after first boot."
+        )
 
     return {
         "schema_version": "2.0",
@@ -171,6 +194,8 @@ def generate_handoff(
             "marker_supported": marker_supported,
             "marker_path": (
                 "/var/lib/acephalous-assembler/bootstrap-complete"
+                if marker_supported
+                else None
             ),
             "status_server": status_server,
         },
@@ -185,13 +210,7 @@ def generate_handoff(
                 "verification fields, (4) archive this handoff for audit."
             ),
         },
-        "handoff_notes": (
-            "Media and flash complete. ISO/image is ready for installation. "
-            "This is a pre-installation handoff: the target system has not "
-            "yet booted. Downstream appliance provisioning should use "
-            "machine.hostname and bootstrap.ssh_user to access the system "
-            "after installation completes and first-boot marker is created."
-        ),
+        "handoff_notes": handoff_notes,
     }
 
 

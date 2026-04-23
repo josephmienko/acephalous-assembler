@@ -17,11 +17,13 @@ Usage: ./setup.sh haos [OPTIONS]
 Home Assistant OS setup for Raspberry Pi 5 headless deployment.
 
 Options:
+  --direct-image     Flash official HAOS image without config injection
   --skip-download    Use existing HA_IMAGE in config.env (don't re-download)
   --download-only    Download image and exit (don't configure)
 
 Examples:
   ./setup.sh haos
+  ./setup.sh haos --direct-image
   ./setup.sh haos --skip-download
   ./setup.sh haos --download-only
 
@@ -43,9 +45,14 @@ fi
 # Parse options
 SKIP_DOWNLOAD="false"
 DOWNLOAD_ONLY="false"
+DIRECT_IMAGE="false"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
+    --direct-image)
+      DIRECT_IMAGE="true"
+      shift
+      ;;
     --skip-download)
       SKIP_DOWNLOAD="true"
       shift
@@ -63,8 +70,11 @@ while [[ $# -gt 0 ]]; do
       usage
       exit 1
       ;;
-  esac
+esac
 done
+
+set_config_value "$CONFIG_FILE" "BUILD_VARIANT" "haos"
+set_config_value "$CONFIG_FILE" "HAOS_DIRECT_IMAGE" "$DIRECT_IMAGE"
 
 # Download HA OS image if needed
 if [[ "$SKIP_DOWNLOAD" == "false" ]]; then
@@ -77,9 +87,11 @@ if [[ "$DOWNLOAD_ONLY" == "true" ]]; then
   exit 0
 fi
 
-# Validate config and password hash
-if ! validate_config_and_hash "$CONFIG_FILE"; then
-  exit 1
+if [[ "$DIRECT_IMAGE" != "true" ]]; then
+  # Validate config and password hash for image injection mode.
+  if ! validate_config_and_hash "$CONFIG_FILE"; then
+    exit 1
+  fi
 fi
 
 # Load config
@@ -87,6 +99,7 @@ load_config "$CONFIG_FILE"
 
 echo ""
 echo "Home Assistant OS configuration:"
+echo "  Mode: ${HAOS_DIRECT_IMAGE:-false}"
 echo "  Hostname: $HOSTNAME"
 echo "  Static IP: ${HA_STATIC_IP:-DHCP}"
 echo "  Location: $HA_LOCATION_NAME"

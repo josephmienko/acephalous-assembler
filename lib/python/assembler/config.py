@@ -1,13 +1,11 @@
-"""Configuration management using python-dotenv.
+"""Configuration management for shell-style config files.
 
-Loads and validates environment configuration from .env-style files.
+Loads and validates environment configuration from simple KEY=VALUE files.
 """
 
 from __future__ import annotations
 
 from pathlib import Path
-
-from dotenv import dotenv_values
 
 
 class ConfigManager:
@@ -30,9 +28,52 @@ class ConfigManager:
         if not self.config_path.exists():
             msg = f"Config file not found: {self.config_path}"
             raise FileNotFoundError(msg)
-        self.data: dict[str, str] = dotenv_values(
-            self.config_path
-        )
+        self.data = self._load_values()
+
+    def _load_values(self) -> dict[str, str]:
+        """Load shell-style KEY=VALUE entries without external dependencies."""
+        values: dict[str, str] = {}
+
+        for raw_line in self.config_path.read_text(
+            encoding="utf-8",
+        ).splitlines():
+            line = raw_line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            if line.startswith("export "):
+                line = line[len("export "):].lstrip()
+
+            key, _, raw_value = line.partition("=")
+            key = key.strip()
+            if not key:
+                continue
+
+            values[key] = self._parse_value(raw_value.strip())
+
+        return values
+
+    @staticmethod
+    def _parse_value(raw_value: str) -> str:
+        """Parse a simple shell value, including quoted values."""
+        if len(raw_value) >= 2 and raw_value[0] == raw_value[-1] == "'":
+            return raw_value[1:-1]
+
+        if len(raw_value) >= 2 and raw_value[0] == raw_value[-1] == '"':
+            value = raw_value[1:-1]
+            replacements = {
+                r"\\": "\\",
+                r"\"": '"',
+                r"\$": "$",
+                r"\`": "`",
+            }
+            for old, new in replacements.items():
+                value = value.replace(old, new)
+            return value
+
+        if " #" in raw_value:
+            raw_value = raw_value.split(" #", 1)[0].rstrip()
+
+        return raw_value
 
     def get(self, key: str, default: str = "") -> str:
         """Get a configuration value with a default.
